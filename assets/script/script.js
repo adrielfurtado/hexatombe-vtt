@@ -81,47 +81,53 @@ function forcarVolumeJogador() {
     }
 }
 
-db.ref('mestres').on('value', (snapshot) => {
-    const mestresData = snapshot.val();
-    const carouselBox = document.getElementById('carousel-box');
+firebase.auth().signInAnonymously().catch(() => {});
 
-    if (!mestresData) {
-        carouselBox.innerHTML = '<h1 style="color: #ff3333; text-align: center;">NENHUM MESTRE ENCONTRADO.</h1>';
-        localAgents = [];
-        return;
-    }
+firebase.auth().onAuthStateChanged((user) => {
+    if (!user) return;
 
-    globalMestreUID = Object.keys(mestresData)[0];
-    const agentesData = mestresData[globalMestreUID].agentes;
+    db.ref('mestres').on('value', (snapshot) => {
+        const mestresData = snapshot.val();
+        const carouselBox = document.getElementById('carousel-box');
 
-    if (!agentesData) {
-        carouselBox.innerHTML = '<h1 style="color: #ffc107; text-align: center;">AGUARDANDO O MESTRE CRIAR AS FICHAS...</h1>';
-        localAgents = [];
-        return;
-    }
-
-    localAgents = Object.keys(agentesData).map(key => ({
-        id: key,
-        ...agentesData[key]
-    }));
-
-    if (!document.getElementById('selection-screen').classList.contains('hidden')) {
-        updateCarousel();
-    }
-
-    const trackData = mestresData[globalMestreUID].trilhaAtiva || { url: '', status: 'paused', tempoAtual: 0 };
-    if (!document.getElementById('sheet-screen').classList.contains('hidden')) {
-        sincronizarAudioJogador(trackData);
-    }
-
-    if (currentAgentId && !document.getElementById('sheet-screen').classList.contains('hidden')) {
-        const updatedData = localAgents.find(a => a.id === currentAgentId);
-        if (updatedData) {
-            renderSheet(updatedData);
-        } else {
-            backToSelection();
+        if (!mestresData) {
+            carouselBox.innerHTML = '<h1 style="color: #ff3333; text-align: center;">NENHUM MESTRE ENCONTRADO.</h1>';
+            localAgents = [];
+            return;
         }
-    }
+
+        globalMestreUID = Object.keys(mestresData)[0];
+        const agentesData = mestresData[globalMestreUID].agentes;
+
+        if (!agentesData) {
+            carouselBox.innerHTML = '<h1 style="color: #ffc107; text-align: center;">AGUARDANDO O MESTRE CRIAR AS FICHAS...</h1>';
+            localAgents = [];
+            return;
+        }
+
+        localAgents = Object.keys(agentesData).map(key => ({
+            id: key,
+            ...agentesData[key]
+        }));
+
+        if (!document.getElementById('selection-screen').classList.contains('hidden')) {
+            updateCarousel();
+        }
+
+        const trackData = mestresData[globalMestreUID].trilhaAtiva || { url: '', status: 'paused', tempoAtual: 0 };
+        if (!document.getElementById('sheet-screen').classList.contains('hidden')) {
+            sincronizarAudioJogador(trackData);
+        }
+
+        if (currentAgentId && !document.getElementById('sheet-screen').classList.contains('hidden')) {
+            const updatedData = localAgents.find(a => a.id === currentAgentId);
+            if (updatedData) {
+                renderSheet(updatedData);
+            } else {
+                backToSelection();
+            }
+        }
+    });
 });
 
 function updateCarousel() {
@@ -264,7 +270,6 @@ function renderSheet(data) {
             .pericias-scroll::-webkit-scrollbar-thumb { background: var(--blood-red); border-radius: 4px; border: 1px solid #000; }
             .pericias-scroll::-webkit-scrollbar-thumb:hover { background: var(--highlight-red); }
             
-            /* ESTILO DA SILHUETA OCULTA NA FICHA */
             .portrait-oculto {
                 filter: brightness(0) drop-shadow(0 0 15px rgba(0,0,0,1));
                 transition: filter 0.5s ease;
@@ -356,7 +361,6 @@ function renderSheet(data) {
 
             <div class="column-right">
                 <div class="portrait-container">
-                    <!-- ADICIONADA A CLASSE DE SILHUETA AQUI -->
                     <img src="${data.fotoPortrait || 'assets/img/alan3x4.png'}" class="character-full-portrait ${classPortrait}" alt="${data.nome}">
                 </div>
                 
