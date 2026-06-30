@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hexatombe - Seleção de Agente</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <div id="selection-screen" class="container">
+        <div class="carousel-container" id="carousel-box">
+            <h1 style="color: #ffc107; text-align: center; text-shadow: 2px 2px 5px #000;">CONECTANDO AO MESTRE...</h1>
+        </div>
+    </div>
+
+    <div id="sheet-screen" class="container hidden">
+        <div id="sheet-content">
+        </div>
+
+        <div id="notes-modal" class="modal-overlay modal-hidden">
+            <div class="notes-window">
+                <button class="close-notes-btn" onclick="closeNotes()">X</button>
+                <h2 class="notes-title">GLOSAS</h2>
+                
+                <div class="notes-flex">
+                    <div class="notes-section">
+                        <h3>RELATOS</h3>
+                        <textarea placeholder="História do personagem."></textarea>
+                    </div>
+                    <div class="notes-section">
+                        <h3>NOTAS MARGINAIS</h3>
+                        <textarea placeholder="Anotações do personagem."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="password-modal" class="custom-modal-overlay" onclick="if(event.target === this) closePasswordModal()">
+        <div class="custom-modal-box" style="text-align: center; max-width: 500px; background: rgba(15,15,15,0.95); border: 2px solid var(--blood-red); box-shadow: 0 0 25px rgba(0,0,0,0.9); padding: 40px 30px; border-radius: 8px;">
+            
+            <p id="enigma-message-text" style="color: #ff3333; font-family: 'Medieval', serif; font-size: 1.2rem; margin-bottom: 30px; line-height: 1.4; text-shadow: 0 0 15px #ff0000;"></p>
+            
+            <input type="password" id="password-input" class="custom-modal-input" style="text-align: center; font-size: 1.2rem; letter-spacing: 2px; padding: 12px; background: #000; border: 1px solid #444; color: #fff; width: 80%; outline: none; transition: 0.3s; font-family: sans-serif;" onfocus="this.style.borderColor='#ff0000'" onblur="this.style.borderColor='#444'">
+            
+        </div>
+    </div>
+
+    <div id="alert-modal" class="custom-modal-overlay">
+        <div class="custom-modal-box">
+            <h2 class="custom-modal-title">ERRO CRÍTICO</h2>
+            <p id="alert-message" style="color: #ff3333; margin-bottom: 25px; font-family: sans-serif; font-size: 1.1rem;"></p>
+            <button class="custom-modal-btn" onclick="closeAlertModal()">TENTAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script src="assets/script/script.js"></script>
+</body>
+</html>

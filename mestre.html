@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hexatombe - Painel do Mestre</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .master-panel {
+            background: #111;
+            width: 90%;
+            max-width: 1000px;
+            padding: 30px;
+            border: 2px solid var(--blood-red);
+            border-radius: 10px;
+            text-align: center;
+            margin: 40px auto;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .master-title { color: var(--highlight-red); font-size: 2rem; text-transform: uppercase; margin: 0; }
+        
+        .master-btn {
+            background: var(--blood-red); color: white; border: none; padding: 15px 30px;
+            font-size: 1.2rem; font-family: inherit; cursor: pointer; transition: 0.3s; margin: 10px;
+        }
+        .master-btn:hover { background: var(--highlight-red); box-shadow: 0 0 15px var(--highlight-red); }
+        
+        .google-btn {
+            background: #fff; color: #333; border: 2px solid #ccc; padding: 12px 25px;
+            font-size: 1.2rem; font-family: Arial, sans-serif; font-weight: bold;
+            text-transform: none; letter-spacing: normal; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 15px; margin: 0 auto;
+            border-radius: 5px;
+        }
+        .google-btn:hover { background: #f1f1f1; border-color: #999; }
+        .google-icon { width: 28px; height: 28px; }
+
+        .btn-sair { background: transparent; color: #888; font-size: 1rem; border: 1px dashed #888; padding: 5px 15px; cursor: pointer; margin-top: 0; }
+        .btn-sair:hover { color: #fff; border-color: #fff; }
+
+        .user-info { color: #ccc; font-size: 1rem; font-family: sans-serif; }
+        .user-avatar { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--blood-red); object-fit: cover; }
+
+        .agents-container { text-align: left; padding-top: 10px; border-radius: 8px; }
+        .agents-title { color: #ffc107; font-size: 1.8rem; font-family: 'Medieval', serif; margin: 0; }
+        
+        .agent-item { 
+            background: rgba(0,0,0,0.5); border-left: 4px solid var(--blood-red); 
+            padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; 
+            align-items: center; transition: 0.2s; 
+        }
+        .agent-item:hover { border-color: var(--highlight-red); background: rgba(139,0,0,0.1); }
+        .agent-info { display: flex; align-items: center; gap: 15px; }
+        .agent-mini-foto { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; border: 1px solid #555; filter: grayscale(100%); }
+        .agent-item:hover .agent-mini-foto { filter: grayscale(0%); border-color: var(--highlight-red); }
+        
+        .agent-nome { color: #fff; font-size: 1.5rem; font-family: 'Medieval', serif; text-transform: uppercase; }
+        .agent-detalhes { color: #888; font-size: 0.9rem; font-family: sans-serif; }
+        
+        .btn-action { color: #fff; border: none; padding: 8px 15px; cursor: pointer; transition: 0.2s; font-family: inherit; font-size: 1.1rem; }
+        .btn-action.delete { background: #5a0000; }
+        .btn-action.delete:hover { background: #ff0000; box-shadow: 0 0 10px #ff0000; }
+        .btn-action.edit { background: #004d40; margin-right: 8px; }
+        .btn-action.edit:hover { background: #00796b; box-shadow: 0 0 10px #00796b; }
+
+        .btn-voltar-fixo {
+            position: fixed; top: 15px; left: 15px; z-index: 9999;
+            background: rgba(0,0,0,0.7); color: #ccc;
+            border: 1px solid #555; padding: 6px 14px;
+            font-family: inherit; font-size: 1rem; cursor: pointer; transition: 0.3s;
+            border-radius: 4px; text-transform: uppercase;
+        }
+        .btn-voltar-fixo:hover { background: var(--blood-red); color: white; border-color: var(--highlight-red); box-shadow: 0 0 10px var(--highlight-red); }
+
+        .master-panel::-webkit-scrollbar { width: 8px; }
+        .master-panel::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+        .master-panel::-webkit-scrollbar-thumb { background: rgba(139, 0, 0, 0.6); border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <div id="main-wrap">
+        
+        <div id="login-screen" class="master-panel" style="margin: 40px auto; max-width: 600px;">
+            <h1 class="master-title" style="font-size: 3rem; margin-bottom: 20px;">Hexatombe</h1>
+            <p class="user-info" style="margin-bottom: 30px;">Painel de criação de fichas.</p>
+            <button class="google-btn" onclick="loginComGoogle()">
+                <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google" class="google-icon">
+                Entrar com o Google
+            </button>
+        </div>
+
+        <div id="dashboard-screen" class="master-panel hidden">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px;">
+                <div style="display: flex; gap: 15px; align-items: center; text-align: left;">
+                    <img id="mestre-foto" src="" alt="Avatar" class="user-avatar" style="margin: 0;">
+                    <div>
+                        <h1 class="master-title">PAINEL DO MESTRE</h1>
+                        <p class="user-info">Bem-vindo(a), <strong id="mestre-nome"></strong>.</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; flex-direction: column; align-items: flex-end;">
+                    <button class="btn-sair" onclick="logout()">Desconectar</button>
+                    <button class="master-btn" style="padding: 10px 20px; font-size: 1rem; margin: 0;" onclick="gerarFichaEmBranco()">NOVA FICHA</button>
+                </div>
+            </div>
+
+            <div class="soundtrack-hub" style="width: 100%; margin-bottom: 30px; text-align: left;">
+                <h3 style="color: #ffc107; font-family: 'Medieval', serif; margin-top: 0; margin-bottom: 15px; border-bottom: 1px solid #ffc107; padding-bottom: 5px;">SOUNDTRACK</h3>
+                
+                <div class="audio-controls-row">
+                    <div class="track-input-group">
+                        <input type="text" id="mestre-audio-titulo" placeholder="NOME DA TRILHA" style="background:#000; border:1px solid #444; padding:5px; font-size:0.9rem; width:150px; text-transform:none; color:#fff;">
+                        <input type="text" id="mestre-audio-url" placeholder="LINK DO AUDIO (DRIVE, YOUTUBE...)" style="background:#000; border:1px solid #444; padding:5px; font-size:0.9rem; flex-grow:1; text-transform:none; color:#fff;">
+                    </div>
+                    <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
+                        <button id="mestre-btn-play" onclick="controlarTrilhaStatus()" style="background:#8b0000; border:1px solid #ff0000; color:#fff; padding:6px 12px; font-weight:bold; cursor:pointer;">PLAY</button>
+                        <button onclick="salvarPresetTrilha()" style="background:#004d40; border:1px solid #00796b; color:#fff; padding:6px 12px; font-weight:bold; cursor:pointer;">SALVAR</button>
+                        
+                        <div style="display:flex; align-items:center; gap:5px; margin-left:10px;">
+                            <span style="font-size:0.8rem; color:#888;">VOL:</span>
+                            <input type="range" min="0" max="100" value="50" class="volume-slider" oninput="ajustarVolumeLocalMestre(this.value)">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 10px; margin-top: 15px; width: 100%;">
+                    <span id="mestre-audio-time-display" style="font-family:sans-serif; color:#ffc107; font-size:0.9rem; width:45px; text-align:right;">00:00</span>
+                    <input type="range" id="mestre-progress-bar" min="0" max="100" value="0" style="flex-grow: 1; cursor: pointer; height: 4px; accent-color: var(--highlight-red);" onchange="seekTrilha(this.value)">
+                    <span id="mestre-audio-duration-display" style="font-family:sans-serif; color:#777; font-size:0.9rem; width:45px;">00:00</span>
+                </div>
+
+                <div class="presets-container" id="mestre-audio-presets-list" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
+            </div>
+
+            <p id="status-msg" style="color: #ffc107; margin-top: 10px; font-size: 1.2rem; text-align: right;"></p>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ffc107; padding-bottom: 10px; margin-bottom: 20px;">
+                <h2 class="agents-title" style="border: none; padding: 0; margin: 0;">AGENTES</h2>
+                <button class="master-btn" style="margin: 0; padding: 8px 15px; font-size: 1rem; background: #8b0000; border: 1px solid #ff0000;" onclick="abrirHistoricoDados()">ROLAGENS</button>
+            </div>
+
+            <div class="agents-container" style="padding-top: 0;">
+                <div id="agents-list"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="sheet-screen" class="hidden" style="width: 100vw; min-height: 100vh; background: #000; padding: 40px 0;">
+        
+        <div style="position: fixed; top: 15px; left: 15px; display: flex; gap: 15px; z-index: 9999;">
+            <button onclick="fecharFichaDoMestre()" class="btn-voltar-fixo" style="position: static;">« VOLTAR</button>
+            <button onclick="abrirModalEnigma()" class="btn-voltar-fixo" style="position: static; background: #111;">ENIGMA</button>
+            <button id="btn-toggle-top" onclick="toggleFichaLiberada()" class="btn-voltar-fixo" style="position: static; background: #5a0000; border-color: #ff0000; color: white; box-shadow: 0 0 5px rgba(0,0,0,0.5);">FICHA OCULTA</button>
+        </div>
+        
+        <div id="sheet-content" style="width: 100%;"></div>
+    </div>
+
+    <div id="floating-history-widget" style="position: fixed; top: 15%; left: 50%; transform: translateX(-50%); width: 380px; background: rgba(15, 15, 15, 0.95); border: 2px solid var(--blood-red); border-radius: 8px; box-shadow: 0 0 25px rgba(0,0,0,0.9); z-index: 100000; display: none; flex-direction: column; overflow: hidden;">
+        <div id="floating-history-widget-header" style="background: #5a0000; color: #ffc107; padding: 10px 15px; font-family: 'Medieval', serif; font-size: 1.2rem; cursor: move; display: flex; justify-content: space-between; align-items: center; user-select: none; border-bottom: 2px solid var(--blood-red);">
+            <span style="display:flex; align-items:center; gap:8px;">ROLAGENS DE DADOS</span>
+            <span onclick="fecharHistoricoDados()" style="color: #fff; cursor: pointer; font-family: sans-serif; font-weight: bold; font-size: 1.2rem; padding: 0 5px;">X</span>
+        </div>
+        <div style="padding: 15px; display: flex; flex-direction: column; height: 450px;">
+            <div id="dice-history-list" class="pericias-scroll" style="flex-grow: 1; overflow-y: auto; padding-right: 10px; text-align: left;"></div>
+            <button class="master-btn" onclick="limparHistorico()" style="margin-top: 15px; font-size: 1.1rem; padding: 10px; width: 100%; border-radius: 4px; margin-left: 0; margin-right: 0;">LIMPAR</button>
+        </div>
+    </div>
+
+    <div id="notes-modal" class="modal-overlay modal-hidden" style="z-index: 10000;">
+        <div class="notes-window">
+            <button class="close-notes-btn" onclick="closeNotes()">X</button>
+            <h2 class="notes-title">GLOSAS (ANOTAÇÕES DO JOGADOR)</h2>
+            <div class="notes-flex">
+                <div class="notes-section">
+                    <h3>RELATOS</h3>
+                    <textarea id="mestre-relatos-input" placeholder="História do personagem..." onchange="salvarCampo('relatos', this.value)"></textarea>
+                </div>
+                <div class="notes-section">
+                    <h3>NOTAS MARGINAIS</h3>
+                    <textarea id="mestre-notas-input" placeholder="Anotações do personagem..." onchange="salvarCampo('notasMarginais', this.value)"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="enigma-modal" class="custom-modal-overlay" style="z-index: 10000;">
+        <div class="custom-modal-box" style="text-align: left; max-width: 500px; width: 90%;">
+            <h2 class="custom-modal-title" style="text-align: center; margin-bottom: 20px;">CONFIGURAÇÕES</h2>
+            <label style="color: #ffc107; font-weight: bold; font-family: sans-serif; font-size: 0.9rem;">SENHA:</label>
+            <input type="text" id="mestre-senha-input" class="custom-modal-input" placeholder="Deixe em branco para acesso livre" onchange="salvarCampoModal('senha', this.value)" style="margin-bottom: 15px; font-size: 1.2rem; padding: 10px;">
+            <label style="color: #ffc107; font-weight: bold; font-family: sans-serif; font-size: 0.9rem;">TEXTO:</label>
+            <textarea id="mestre-enigma-input" onchange="salvarCampoModal('mensagemEnigma', this.value)" placeholder="Mensagem para o jogador..." style="width: 100%; background: rgba(0,0,0,0.8); border: 1px solid #555; color: #fff; padding: 10px; font-family: sans-serif; font-size: 1rem; margin-bottom: 20px; resize: vertical; min-height: 100px; box-sizing: border-box; text-transform: none;"></textarea>
+            
+            <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 10px;">
+                <button class="custom-modal-btn" onclick="fecharModalEnigma()" style="background: #333; color: #aaa; border-radius: 4px;">SALVAR</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script src="assets/script/mestre.js"></script>
+    <script src="assets/script/soundtrack.js"></script>
+    <script src="assets/script/rolagens.js"></script>
+</body>
+</html>
