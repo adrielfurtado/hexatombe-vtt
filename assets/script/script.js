@@ -371,7 +371,10 @@ function renderSheet(data) {
                             <div class="resource-fill pv-fill" style="width: ${pvPercent}%;"></div>
                             <div class="resource-content">
                                 <div class="controls-left"><span onclick="changeStatus('pv', -10)">&laquo;</span><span onclick="changeStatus('pv', -1)">&lsaquo;</span></div>
-                                <div class="resource-text">${isLiberada ? `${data.pv} / ${data.maxPv}` : '?? / ??'}</div>
+                                <!-- Para a Vida (PV) -->
+                                <div class="resource-text">
+                                    ${isLiberada ? `<span contenteditable="true" onblur="salvarCampo('pv', parseInt(this.innerText) || 0)">${data.pv}</span> / <span contenteditable="true" onblur="salvarCampo('maxPv', parseInt(this.innerText) || 0)">${data.maxPv}</span>` : '?? / ??'}
+                                </div>
                                 <div class="controls-right"><span onclick="changeStatus('pv', 1)">&rsaquo;</span><span onclick="changeStatus('pv', 10)">&raquo;</span></div>
                             </div>
                         </div>
@@ -383,7 +386,10 @@ function renderSheet(data) {
                             <div class="resource-fill pd-fill" style="width: ${pdPercent}%;"></div>
                             <div class="resource-content">
                                 <div class="controls-left"><span onclick="changeStatus('pd', -10)">&laquo;</span><span onclick="changeStatus('pd', -1)">&lsaquo;</span></div>
-                                <div class="resource-text">${isLiberada ? `${data.pd} / ${data.maxPd}` : '?? / ??'}</div>
+                                <!-- Para a Determinação (PD) -->
+                                <div class="resource-text">
+                                    ${isLiberada ? `<span contenteditable="true" onblur="salvarCampo('pd', parseInt(this.innerText) || 0)">${data.pd}</span> / <span contenteditable="true" onblur="salvarCampo('maxPd', parseInt(this.innerText) || 0)">${data.maxPd}</span>` : '?? / ??'}
+                                </div>
                                 <div class="controls-right"><span onclick="changeStatus('pd', 1)">&rsaquo;</span><span onclick="changeStatus('pd', 10)">&raquo;</span></div>
                             </div>
                         </div>

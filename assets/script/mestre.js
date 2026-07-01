@@ -207,7 +207,7 @@ window.abrirFichaDoMestre = function(idAgente) {
                     <div class="attributes-pentagon">
                         <div class="attr agi"><input type="number" class="attr-input" value="${data.atributos.AGI}" onchange="salvarCampo('atributos/AGI', parseInt(this.value))"><span class="attr-label">AGI</span></div>
                         <div class="attr for"><input type="number" class="attr-input" value="${data.atributos.FOR}" onchange="salvarCampo('atributos/FOR', parseInt(this.value))"><span class="attr-label">FOR</span></div>
-                        <div class="attr int"><input type="number" class="attr-input" value="${data.atributos.INT}" onchange="updateAttribute('INT', parseInt(this.value))"><span class="attr-label">INT</span></div>
+                        <div class="attr int"><input type="number" class="attr-input" value="${data.atributos.INT}" onchange="salvarCampo('atributos/INT', parseInt(this.value))"><span class="attr-label">INT</span></div>
                         <div class="attr vig"><input type="number" class="attr-input" value="${data.atributos.VIG}" onchange="salvarCampo('atributos/VIG', parseInt(this.value))"><span class="attr-label">VIG</span></div>
                         <div class="attr pre"><input type="number" class="attr-input" value="${data.atributos.PRE}" onchange="salvarCampo('atributos/PRE', parseInt(this.value))"><span class="attr-label">PRE</span></div>
                     </div> 
@@ -278,7 +278,11 @@ window.abrirFichaDoMestre = function(idAgente) {
                                 <div class="resource-fill pv-fill" style="width: ${pvPercent}%;"></div>
                                 <div class="resource-content">
                                     <div class="controls-left"><span onclick="alterarStatus('pv', -10)">&laquo;</span><span onclick="alterarStatus('pv', -1)">&lsaquo;</span></div>
-                                    <div class="resource-text">${data.pv} / ${data.maxPv}</div>
+                                    <!-- Para a Vida (PV) -->
+                                    <div class="resource-text">
+                                        <span contenteditable="true" onblur="salvarCampo('pv', parseInt(this.innerText) || 0)">${data.pv}</span> / 
+                                        <span contenteditable="true" onblur="salvarCampo('maxPv', parseInt(this.innerText) || 0)">${data.maxPv}</span>
+                                    </div>
                                     <div class="controls-right"><span onclick="alterarStatus('pv', 1)">&rsaquo;</span><span onclick="alterarStatus('pv', 10)">&raquo;</span></div>
                                 </div>
                             </div>
@@ -290,7 +294,11 @@ window.abrirFichaDoMestre = function(idAgente) {
                                 <div class="resource-fill pd-fill" style="width: ${pdPercent}%;"></div>
                                 <div class="resource-content">
                                     <div class="controls-left"><span onclick="alterarStatus('pd', -10)">&laquo;</span><span onclick="alterarStatus('pd', -1)">&lsaquo;</span></div>
-                                    <div class="resource-text">${data.pd} / ${data.maxPd}</div>
+                                    <!-- Para a Determinação (PD) -->
+                                    <div class="resource-text">
+                                        <span contenteditable="true" onblur="salvarCampo('pd', parseInt(this.innerText) || 0)">${data.pd}</span> / 
+                                        <span contenteditable="true" onblur="salvarCampo('maxPd', parseInt(this.innerText) || 0)">${data.maxPd}</span>
+                                    </div>
                                     <div class="controls-right"><span onclick="alterarStatus('pd', 1)">&rsaquo;</span><span onclick="alterarStatus('pd', 10)">&raquo;</span></div>
                                 </div>
                             </div>
