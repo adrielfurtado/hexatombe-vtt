@@ -523,14 +523,11 @@ input, button, textarea, select {
 }
 
 .portrait-container {
-    width: 100%;
-    flex-grow: 1;
+    width: 100%; 
     display: flex;
     justify-content: center;
-    align-items: flex-end;
-    padding-bottom: 10px;
-    position: relative !important;
-    z-index: 1;
+    align-items: center;
+    margin-bottom: 30px;
 }
 
 .portrait-container > div {
@@ -545,11 +542,12 @@ input, button, textarea, select {
 }
 
 .character-full-portrait {
-    width: 100% !important;
-    height: 50vh !important;
-    object-fit: contain !important; 
-    object-position: bottom center !important; 
-    filter: drop-shadow(-5px 10px 15px rgba(0, 0, 0, 0.4));
+    width: 100%;
+    max-width: 380px;
+    height: auto;
+    max-height: 550px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(0,0,0,0.8));
 }
 
 .status-bars-container {
