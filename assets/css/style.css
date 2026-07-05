@@ -1116,28 +1116,34 @@ input, button, textarea, select {
 }
 
 /* ==========================================
-   QUEBRA DE LINHA NOS CARDS (HABILIDADES/ITENS)
+   QUEBRA DE LINHA DEFINITIVA NOS CARDS
    ========================================== */
 
-/* Força o texto a quebrar e a caixa a crescer para baixo */
-.skill-desc-new {
-    white-space: normal !important;
-    overflow-wrap: break-word !important; 
-    word-wrap: break-word !important;
-    word-break: break-word !important; /* Esse é o comando mágico para o AAAAAAA */
-    display: block;
-    width: 100%;
-}
-
-/* Aplica a mesma regra para o título do item, caso o nome seja muito grande */
-.skill-header-new span[contenteditable] {
-    overflow-wrap: break-word !important; 
-    word-break: break-word !important;
-    max-width: 70%; /* Evita que o nome atropele o custo em PE/Peso */
-}
-
-/* Garante que o card branco/vermelho acompanhe o crescimento do texto */
+/* Tranca o card para nunca ultrapassar 100% da tela */
 .skill-card-new {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
     height: auto !important;
     min-height: fit-content;
+}
+
+/* Força a quebra de palavras gigantes e respeita os 'Enters' */
+.skill-desc-new {
+    white-space: pre-wrap !important; 
+    overflow-wrap: break-word !important; 
+    word-break: break-all !important; /* Esse é o machado que corta o AAAAA */
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Protege o título do card de empurrar os botões de PE/Peso */
+.skill-header-new span[contenteditable] {
+    white-space: pre-wrap !important;
+    overflow-wrap: break-word !important; 
+    word-break: break-all !important;
+    max-width: 70%;
+    display: inline-block;
 }
