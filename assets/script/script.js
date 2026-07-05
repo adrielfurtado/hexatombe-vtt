@@ -232,12 +232,13 @@ function renderSheet(data) {
 
     const gerarCardsPlayer = (categoriaNome, categoriaData, bgColor) => {
         if (!categoriaData) return '<p style="text-align:center; color:#555; padding-top:20px;">Vazio.</p>';
-        const label = categoriaNome === 'inventario' ? 'PESO' : 'PE';
+        const label = categoriaNome === 'inventario' ? 'PESO' : 'PD';
         const textColor = bgColor === 'white-bg' ? '#666' : '#fff';
 
-        return Object.keys(categoriaData).map(key => {
-            const item = categoriaData[key];
-            const numCusto = parseInt(String(item.custo).match(/\d+/) || [0])[0];
+            return Object.keys(categoriaData).map(key => {
+        const item = categoriaData[key];
+        const matchCusto = String(item.custo).match(/\d+/);
+        const numCusto = matchCusto ? parseInt(matchCusto[0]) : 0;
 
             return `
                 <div class="skill-card-new ${bgColor}" style="padding-right: 20px;">
@@ -826,7 +827,7 @@ window.salvarCampo = function(caminho, valor) {
 
 window.mudarCusto = function(categoria, key, valor) {
     if (!currentAgentId || !globalMestreUID) return;
-    const formato = categoria === 'inventario' ? `PESO: ${valor}` : `${valor} PE`;
+    const formato = categoria === 'inventario' ? `PESO: ${valor}` : `${valor} PD`;
     db.ref(`mestres/${globalMestreUID}/agentes/${currentAgentId}/${categoria}/${key}/custo`).set(formato);
 };
 

@@ -132,12 +132,13 @@ window.abrirFichaDoMestre = function(idAgente) {
 
         const gerarCards = (categoria, bgColor) => {
             if (!data[categoria]) return '';
-            const label = categoria === 'inventario' ? 'PESO' : 'PE';
+            const label = categoria === 'inventario' ? 'PESO' : 'PD';
             const textColor = bgColor === 'white-bg' ? '#666' : '#fff';
 
-            return Object.keys(data[categoria]).map(key => {
-                const item = data[categoria][key];
-                const numCusto = parseInt(String(item.custo).match(/\d+/) || [0])[0];
+        return Object.keys(data[categoria]).map(key => {
+            const item = data[categoria][key];
+            const matchCusto = String(item.custo).match(/\d+/);
+            const numCusto = matchCusto ? parseInt(matchCusto[0]) : 0;
 
                 return `
                     <div class="skill-card-new ${bgColor}">
@@ -364,7 +365,7 @@ window.salvarCampo = function(caminho, valor) {
 
 window.mudarCustoMestre = function(categoria, key, valor) {
     if (!idAgenteAtivo) return;
-    const formato = categoria === 'inventario' ? `PESO: ${valor}` : `${valor} PE`;
+    const formato = categoria === 'inventario' ? `PESO: ${valor}` : `${valor} PD`;
     db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/${categoria}/${key}/custo`).set(formato);
 };
 
@@ -472,7 +473,7 @@ window.adicionarNovoCard = function(categoria) {
     if (!idAgenteAtivo) return;
     const novoItem = {
         nome: "NOVO ITEM",
-        custo: categoria === 'inventario' ? "PESO: 0" : "0 PE", 
+        custo: categoria === 'inventario' ? "PESO: 0" : "0 PD", 
         desc: "Clique aqui para editar a descricao..."
     };
     db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/${categoria}`).push().set(novoItem);
