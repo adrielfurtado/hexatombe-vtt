@@ -527,7 +527,7 @@ input, button, textarea, select {
     flex-grow: 1;
     display: flex;
     justify-content: center;
-    align-items: flex-end; /* Garante que o container empurre tudo lá pra baixo */
+    align-items: flex-end;
     padding-bottom: 10px;
     position: relative !important;
     z-index: 1;
@@ -546,14 +546,12 @@ input, button, textarea, select {
 
 .character-full-portrait {
     width: 100% !important;
-    height: 55vh !important; /* Dei um fôlego extra de 50 para 55vh */
+    height: 55vh !important;
     object-fit: contain !important; 
-    object-position: bottom center !important; /* Mantém os pés cravados no chão da caixa */
+    object-position: bottom center !important;
     filter: drop-shadow(-5px 10px 15px rgba(0, 0, 0, 0.4));
-    
-    /* O TRUQUE MESTRE PARA CRESCER SEM FLUTUAR: */
-    transform: scale(1.35); /* Aumenta a imagem em 35% direto na tela */
-    transform-origin: bottom center; /* Força o crescimento a partir da base, e não do centro */
+    transform: scale(1.35);
+    transform-origin: bottom center;
 }
 
 .status-bars-container {
@@ -1115,4 +1113,31 @@ input, button, textarea, select {
 .controls-right span:active {
     transform: scale(0.8) translateX(6px);
     color: #00ff00;
+}
+
+/* ==========================================
+   QUEBRA DE LINHA NOS CARDS (HABILIDADES/ITENS)
+   ========================================== */
+
+/* Força o texto a quebrar e a caixa a crescer para baixo */
+.skill-desc-new {
+    white-space: normal !important;
+    overflow-wrap: break-word !important; 
+    word-wrap: break-word !important;
+    word-break: break-word !important; /* Esse é o comando mágico para o AAAAAAA */
+    display: block;
+    width: 100%;
+}
+
+/* Aplica a mesma regra para o título do item, caso o nome seja muito grande */
+.skill-header-new span[contenteditable] {
+    overflow-wrap: break-word !important; 
+    word-break: break-word !important;
+    max-width: 70%; /* Evita que o nome atropele o custo em PE/Peso */
+}
+
+/* Garante que o card branco/vermelho acompanhe o crescimento do texto */
+.skill-card-new {
+    height: auto !important;
+    min-height: fit-content;
 }
