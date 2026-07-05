@@ -23,9 +23,10 @@ auth.onAuthStateChanged((user) => {
     const sheetScreen = document.getElementById('sheet-screen');
     const mainWrap = document.getElementById('main-wrap');
 
-    if (user) {
+    // A MUDANÇA ESTÁ AQUI: Só entra se for um utilizador válido E NÃO for anónimo
+    if (user && !user.isAnonymous) {
         mestreUID = user.uid;
-        document.getElementById('mestre-nome').innerText = user.displayName;
+        document.getElementById('mestre-nome').innerText = user.displayName || 'Mestre';
         if(user.photoURL) document.getElementById('mestre-foto').src = user.photoURL;
 
         loginScreen.classList.add('hidden');
