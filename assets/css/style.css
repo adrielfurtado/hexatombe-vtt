@@ -523,11 +523,14 @@ input, button, textarea, select {
 }
 
 .portrait-container {
-    width: 100%; 
+    width: 100%;
+    flex-grow: 1;
     display: flex;
     justify-content: center;
-    align-items: center;
-    margin-bottom: 30px;
+    align-items: flex-end; /* Garante que o container empurre tudo lá pra baixo */
+    padding-bottom: 10px;
+    position: relative !important;
+    z-index: 1;
 }
 
 .portrait-container > div {
@@ -542,12 +545,15 @@ input, button, textarea, select {
 }
 
 .character-full-portrait {
-    width: 100%;
-    max-width: 380px;
-    height: auto;
-    max-height: 550px;
-    object-fit: contain;
-    filter: drop-shadow(0 0 10px rgba(0,0,0,0.8));
+    width: 100% !important;
+    height: 55vh !important; /* Dei um fôlego extra de 50 para 55vh */
+    object-fit: contain !important; 
+    object-position: bottom center !important; /* Mantém os pés cravados no chão da caixa */
+    filter: drop-shadow(-5px 10px 15px rgba(0, 0, 0, 0.4));
+    
+    /* O TRUQUE MESTRE PARA CRESCER SEM FLUTUAR: */
+    transform: scale(1.35); /* Aumenta a imagem em 35% direto na tela */
+    transform-origin: bottom center; /* Força o crescimento a partir da base, e não do centro */
 }
 
 .status-bars-container {
