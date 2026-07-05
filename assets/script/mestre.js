@@ -135,20 +135,26 @@ window.abrirFichaDoMestre = function(idAgente) {
             const label = categoria === 'inventario' ? 'PESO' : 'PD';
             const textColor = bgColor === 'white-bg' ? '#666' : '#fff';
 
-        return Object.keys(data[categoria]).map(key => {
-            const item = data[categoria][key];
-            const matchCusto = String(item.custo).match(/\d+/);
-            const numCusto = matchCusto ? parseInt(matchCusto[0]) : 0;
+            return Object.keys(data[categoria]).map(key => {
+                const item = data[categoria][key];
+
+                let numCusto = 0;
+                if (item.custo) {
+                    const extraido = String(item.custo).replace(/\D/g, ''); 
+                    if (extraido !== '') {
+                        numCusto = parseInt(extraido);
+                    }
+                }
 
                 return `
                     <div class="skill-card-new ${bgColor}">
                         <img src="assets/img/trash.png" class="delete-card-btn" onclick="removerItemCard('${categoria}', '${key}')" style="top: 15px; right: 15px;">
-                        
+                
                         <div class="skill-header-new" style="padding-right: 35px;">
                             <span contenteditable="true" onblur="salvarItemCard('${categoria}', '${key}', 'nome', this.innerText)">${item.nome}</span>
-                            
+                    
                             <span class="skill-cost-container" style="display:flex; align-items:center; gap:8px;">
-                                <input type="number" class="line-input" value="${numCusto}" onchange="mudarCustoMestre('${categoria}', '${key}', this.value)" style="color: ${textColor}; border-bottom-color: ${textColor}; width: 40px;">
+                                <input type="number" class="line-input" value="${numCusto}" onchange="mudarCustoMestre('${categoria}', '${key}', this.value)" style="color: ${textColor}; border-bottom-color: ${textColor}; width: 40px; text-align: center;">
                                 <span style="font-size: 0.95rem; color: ${textColor}; font-weight: bold;">${label}</span>
                             </span>
                         </div>
@@ -365,7 +371,8 @@ window.salvarCampo = function(caminho, valor) {
 
 window.mudarCustoMestre = function(categoria, key, valor) {
     if (!idAgenteAtivo) return;
-    const formato = categoria === 'inventario' ? `PESO: ${valor}` : `${valor} PD`;
+    const numero = parseInt(valor) || 0;
+    const formato = categoria === 'inventario' ? `PESO: ${numero}` : `${numero} PD`;
     db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/${categoria}/${key}/custo`).set(formato);
 };
 
@@ -473,8 +480,8 @@ window.adicionarNovoCard = function(categoria) {
     if (!idAgenteAtivo) return;
     const novoItem = {
         nome: "NOVO ITEM",
-        custo: categoria === 'inventario' ? "PESO: 0" : "0 PD", 
-        desc: "Clique aqui para editar a descricao..."
+        custo: categoria === 'inventario' ? "PESO: 0" : "0 PD",
+        desc: "CLIQUE AQUI PARA EDITAR A DESCRICAO..."
     };
     db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/${categoria}`).push().set(novoItem);
 };

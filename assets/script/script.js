@@ -235,21 +235,27 @@ function renderSheet(data) {
         const label = categoriaNome === 'inventario' ? 'PESO' : 'PD';
         const textColor = bgColor === 'white-bg' ? '#666' : '#fff';
 
-            return Object.keys(categoriaData).map(key => {
-        const item = categoriaData[key];
-        const matchCusto = String(item.custo).match(/\d+/);
-        const numCusto = matchCusto ? parseInt(matchCusto[0]) : 0;
+        return Object.keys(categoriaData).map(key => {
+            const item = categoriaData[key];
+        
+            let numCusto = 0;
+            if (item.custo) {
+                const extraido = String(item.custo).replace(/\D/g, ''); 
+                if (extraido !== '') {
+                    numCusto = parseInt(extraido);
+                }
+            }
 
             return `
                 <div class="skill-card-new ${bgColor}" style="padding-right: 20px;">
                     <img src="assets/img/trash.png" class="delete-card-btn" onclick="removeItem('${categoriaNome}', '${key}')" style="top: 15px; right: 15px;">
-                    
+                
                     <div class="skill-header-new" style="padding-right: 35px;">
                         <span contenteditable="${isLiberada}" onblur="updateItem('${categoriaNome}', '${key}', 'nome', this.innerText)">${item.nome}</span>
-                        
+                    
                         <span class="skill-cost-container" style="display:flex; align-items:center; gap:8px;">
-                            <input type="number" class="line-input" value="${numCusto}" onchange="mudarCusto('${categoriaNome}', '${key}', this.value)" ${isLiberada ? '' : 'readonly'} style="color: ${textColor}; border-bottom-color: ${textColor};">
-                            <span style="font-size: 0.95rem; color: ${textColor};">${label}</span>
+                            <input type="number" class="line-input" value="${numCusto}" onchange="mudarCusto('${categoriaNome}', '${key}', this.value)" ${isLiberada ? '' : 'readonly'} style="color: ${textColor}; border-bottom-color: ${textColor}; width: 40px; text-align: center;">
+                            <span style="font-size: 0.95rem; color: ${textColor}; font-weight: bold;">${label}</span>
                         </span>
                     </div>
                     <p class="skill-desc-new" contenteditable="${isLiberada}" onblur="updateItem('${categoriaNome}', '${key}', 'desc', this.innerText)">${item.desc}</p>
@@ -827,7 +833,8 @@ window.salvarCampo = function(caminho, valor) {
 
 window.mudarCusto = function(categoria, key, valor) {
     if (!currentAgentId || !globalMestreUID) return;
-    const formato = categoria === 'inventario' ? `PESO: ${valor}` : `${valor} PD`;
+    const numero = parseInt(valor) || 0;
+    const formato = categoria === 'inventario' ? `PESO: ${numero}` : `${numero} PD`;
     db.ref(`mestres/${globalMestreUID}/agentes/${currentAgentId}/${categoria}/${key}/custo`).set(formato);
 };
 
