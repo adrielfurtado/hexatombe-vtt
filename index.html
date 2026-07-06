@@ -22,15 +22,15 @@
             <div class="notes-window">
                 <button class="close-notes-btn" onclick="closeNotes()">X</button>
                 <h2 class="notes-title">GLOSAS</h2>
-                
+        
                 <div class="notes-flex">
                     <div class="notes-section">
                         <h3>RELATOS</h3>
-                        <textarea placeholder="História do personagem."></textarea>
+                        <textarea id="jogador-relatos-input" placeholder="História do personagem." onchange="salvarCampo('relatos', this.value)"></textarea>
                     </div>
                     <div class="notes-section">
                         <h3>NOTAS MARGINAIS</h3>
-                        <textarea placeholder="Anotações do personagem."></textarea>
+                        <textarea id="jogador-notas-input" placeholder="Anotações do personagem." onchange="salvarCampo('notasMarginais', this.value)"></textarea>
                     </div>
                 </div>
             </div>

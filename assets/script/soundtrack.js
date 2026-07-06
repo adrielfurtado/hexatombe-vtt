@@ -72,9 +72,10 @@ function initSoundtrack(uid) {
     if (volSlider && volSalvo !== null) volSlider.value = parseInt(volSalvo);
 
     dbAudio.ref(`mestres/${uid}/trilhaAtiva`).on('value', (trackSnapshot) => {
-        const track = trackSnapshot.val() || { url: '', status: 'paused', tempoAtual: 0, titulo: '' };
+        const track = trackSnapshot.val() || { url: '', status: 'paused', tempoAtual: 0, titulo: '', loop: true };
         
         const btnPlayPause = document.getElementById('mestre-btn-play');
+        const btnLoop = document.getElementById('mestre-btn-loop');
         const inputUrl = document.getElementById('mestre-audio-url');
         const inputTitulo = document.getElementById('mestre-audio-titulo');
 
@@ -82,6 +83,15 @@ function initSoundtrack(uid) {
         if(inputUrl && document.activeElement !== inputUrl) inputUrl.value = track.url || '';
         if(inputTitulo && document.activeElement !== inputTitulo) inputTitulo.value = track.titulo || '';
 
+        let isLoop = track.loop !== false;
+        if(btnLoop) {
+            btnLoop.innerText = isLoop ? 'LOOP: ON' : 'LOOP: OFF';
+            btnLoop.style.background = isLoop ? '#004d40' : '#444';
+            btnLoop.style.borderColor = isLoop ? '#00796b' : '#777';
+        }
+        mestreAudioNode.loop = isLoop;
+        if (isYouTube && ytPlayer && typeof ytPlayer.setLoop === 'function') ytPlayer.setLoop(isLoop);
+        
         let urlMudou = track.url !== mestreUltimaUrl;
         let statusMudou = track.status !== mestreUltimoStatus;
 
@@ -195,9 +205,10 @@ window.controlarTrilhaStatus = function() {
         const atual = snap.val() || {};
         const novoStatus = atual.status === 'playing' ? 'paused' : 'playing';
         let tempo = isYouTube ? (ytPlayer && ytPlayer.getCurrentTime ? ytPlayer.getCurrentTime() : 0) : mestreAudioNode.currentTime;
+        let currentLoop = atual.loop !== false;
 
         dbAudio.ref(`mestres/${uid}/trilhaAtiva`).set({
-            url: url, titulo: titulo, status: novoStatus, tempoAtual: Math.floor(tempo)
+            url: url, titulo: titulo, status: novoStatus, tempoAtual: Math.floor(tempo), loop: currentLoop
         });
     });
 };
@@ -259,3 +270,13 @@ mestreAudioNode.addEventListener('timeupdate', () => {
     const display = document.getElementById('mestre-audio-time-display');
     if(display && !mestreAudioNode.paused) { display.innerText = formatarTempoAudio(mestreAudioNode.currentTime); }
 });
+
+window.toggleLoopTrilha = function() {
+    const uid = firebase.auth().currentUser.uid;
+    const dbAudio = firebase.database();
+    dbAudio.ref(`mestres/${uid}/trilhaAtiva/loop`).once('value', (snap) => {
+        let estadoAtual = snap.val();
+        if (estadoAtual === null) estadoAtual = true;
+        dbAudio.ref(`mestres/${uid}/trilhaAtiva/loop`).set(!estadoAtual);
+    });
+};

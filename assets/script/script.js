@@ -426,10 +426,14 @@ function renderSheet(data) {
             </div>
         </div>
     `;
+
+    const jRelatos = document.getElementById('jogador-relatos-input');
+    const jNotas = document.getElementById('jogador-notas-input');
+    if (jRelatos && document.activeElement !== jRelatos) jRelatos.value = data.relatos || '';
+    if (jNotas && document.activeElement !== jNotas) jNotas.value = data.notasMarginais || '';
     
     updateTabsUI();
 
-    // --- 2. DEVOLVER O SCROLL COM DELAY (Garante que o navegador recarregou o HTML) ---
     setTimeout(() => {
         const novoDivCentro = document.querySelector('.center-square-carousel');
         const novoDivPericias = document.querySelector('.pericias-box .pericias-scroll');
@@ -439,6 +443,12 @@ function renderSheet(data) {
 }
 
 function sincronizarAudioJogador(track) {
+    let isLoop = track.loop !== false;
+    playerAudioNode.loop = isLoop;
+    if (isYouTube && ytPlayer && typeof ytPlayer.setLoop === 'function') {
+        ytPlayer.setLoop(isLoop);
+    }
+
     if (!track || !track.url) {
         playerAudioNode.pause();
         if(ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
