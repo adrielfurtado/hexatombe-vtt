@@ -16,7 +16,7 @@ let localAgents = [];
 let currentAgentIndex = 0;
 let currentAgentId = null;
 let pendingAgentData = null;
-let ultimaFichaString = ""; // MEMÓRIA DA FICHA (BLINDA CONTRA ATUALIZAÇÕES FALSAS)
+let ultimaFichaString = "";
 
 let currentTabIndex = 0;
 const tabsOrder = ['habilidades', 'rituais', 'inventario'];
@@ -123,7 +123,6 @@ firebase.auth().onAuthStateChanged((user) => {
         if (currentAgentId && !document.getElementById('sheet-screen').classList.contains('hidden')) {
             const updatedData = localAgents.find(a => a.id === currentAgentId);
             if (updatedData) {
-                // A MÁGICA ESTÁ AQUI: Só redesenha se os atributos da ficha mudarem (ignorando o tempo da música)
                 const novaFichaString = JSON.stringify(updatedData);
                 if (novaFichaString !== ultimaFichaString) {
                     renderSheet(updatedData);
@@ -212,7 +211,7 @@ window.closeAlertModal = function() {
 function proceedToSheet(data) {
     currentAgentId = data.id;
     currentTabIndex = 0; 
-    ultimaFichaString = ""; // Força o render na primeira vez que abre
+    ultimaFichaString = "";
     document.getElementById('selection-screen').classList.add('hidden');
     document.getElementById('sheet-screen').classList.remove('hidden');
     renderSheet(data);
@@ -220,7 +219,6 @@ function proceedToSheet(data) {
 }
 
 function renderSheet(data) {
-    // --- 1. CAPTURAR O SCROLL ATUAL ---
     let scrollCentro = 0;
     let scrollPericias = 0;
     const divCentro = document.querySelector('.center-square-carousel');
@@ -431,7 +429,7 @@ function renderSheet(data) {
     const jNotas = document.getElementById('jogador-notas-input');
     if (jRelatos && document.activeElement !== jRelatos) jRelatos.value = data.relatos || '';
     if (jNotas && document.activeElement !== jNotas) jNotas.value = data.notasMarginais || '';
-    
+
     updateTabsUI();
 
     setTimeout(() => {
