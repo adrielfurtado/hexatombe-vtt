@@ -16,6 +16,7 @@ let localAgents = [];
 let currentAgentIndex = 0;
 let currentAgentId = null;
 let pendingAgentData = null;
+let ultimaFichaString = ""; // MEMÓRIA DA FICHA (BLINDA CONTRA ATUALIZAÇÕES FALSAS)
 
 let currentTabIndex = 0;
 const tabsOrder = ['habilidades', 'rituais', 'inventario'];
@@ -122,7 +123,12 @@ firebase.auth().onAuthStateChanged((user) => {
         if (currentAgentId && !document.getElementById('sheet-screen').classList.contains('hidden')) {
             const updatedData = localAgents.find(a => a.id === currentAgentId);
             if (updatedData) {
-                renderSheet(updatedData);
+                // A MÁGICA ESTÁ AQUI: Só redesenha se os atributos da ficha mudarem (ignorando o tempo da música)
+                const novaFichaString = JSON.stringify(updatedData);
+                if (novaFichaString !== ultimaFichaString) {
+                    renderSheet(updatedData);
+                    ultimaFichaString = novaFichaString;
+                }
             } else {
                 backToSelection();
             }
@@ -206,13 +212,15 @@ window.closeAlertModal = function() {
 function proceedToSheet(data) {
     currentAgentId = data.id;
     currentTabIndex = 0; 
+    ultimaFichaString = ""; // Força o render na primeira vez que abre
     document.getElementById('selection-screen').classList.add('hidden');
     document.getElementById('sheet-screen').classList.remove('hidden');
     renderSheet(data);
+    ultimaFichaString = JSON.stringify(data);
 }
 
 function renderSheet(data) {
-    // --- 1. MEMÓRIA DO SCROLL ---
+    // --- 1. CAPTURAR O SCROLL ATUAL ---
     let scrollCentro = 0;
     let scrollPericias = 0;
     const divCentro = document.querySelector('.center-square-carousel');
@@ -421,11 +429,13 @@ function renderSheet(data) {
     
     updateTabsUI();
 
-    // --- 2. RESTAURAR SCROLL ---
-    const novoDivCentro = document.querySelector('.center-square-carousel');
-    const novoDivPericias = document.querySelector('.pericias-box .pericias-scroll');
-    if (novoDivCentro) novoDivCentro.scrollTop = scrollCentro;
-    if (novoDivPericias) novoDivPericias.scrollTop = scrollPericias;
+    // --- 2. DEVOLVER O SCROLL COM DELAY (Garante que o navegador recarregou o HTML) ---
+    setTimeout(() => {
+        const novoDivCentro = document.querySelector('.center-square-carousel');
+        const novoDivPericias = document.querySelector('.pericias-box .pericias-scroll');
+        if (novoDivCentro) novoDivCentro.scrollTop = scrollCentro;
+        if (novoDivPericias) novoDivPericias.scrollTop = scrollPericias;
+    }, 10);
 }
 
 function sincronizarAudioJogador(track) {
