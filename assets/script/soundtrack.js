@@ -25,13 +25,21 @@ tag.src = "https://www.youtube.com/iframe_api";
 const firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
+window.vttLoopAtivo = true;
+
 window.onYouTubeIframeAPIReady = function() {
     isYtApiReady = true;
     ytPlayer = new YT.Player('yt-player-container', {
         height: '0', width: '0',
-        playerVars: { 'autoplay': 0, 'controls': 0, 'loop': 1 },
+        playerVars: { 'autoplay': 0, 'controls': 0, 'playsinline': 1 },
         events: {
-            'onReady': () => { forcarVolumeMestre(); }
+            'onReady': () => { forcarVolumeMestre(); },
+            'onStateChange': (event) => {
+                if (event.data === 0 && window.vttLoopAtivo) {
+                    ytPlayer.seekTo(0);
+                    ytPlayer.playVideo();
+                }
+            }
         }
     });
 };
@@ -84,13 +92,14 @@ function initSoundtrack(uid) {
         if(inputTitulo && document.activeElement !== inputTitulo) inputTitulo.value = track.titulo || '';
 
         let isLoop = track.loop !== false;
+        window.vttLoopAtivo = isLoop;
+
         if(btnLoop) {
             btnLoop.innerText = isLoop ? 'LOOP: ON' : 'LOOP: OFF';
             btnLoop.style.background = isLoop ? '#004d40' : '#444';
             btnLoop.style.borderColor = isLoop ? '#00796b' : '#777';
         }
         mestreAudioNode.loop = isLoop;
-        if (isYouTube && ytPlayer && typeof ytPlayer.setLoop === 'function') ytPlayer.setLoop(isLoop);
         
         let urlMudou = track.url !== mestreUltimaUrl;
         let statusMudou = track.status !== mestreUltimoStatus;

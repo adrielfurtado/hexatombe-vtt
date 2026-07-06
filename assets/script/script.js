@@ -48,12 +48,22 @@ tag.src = "https://www.youtube.com/iframe_api";
 const firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
+window.vttLoopAtivo = true;
+
 window.onYouTubeIframeAPIReady = function() {
     isYtApiReady = true;
     ytPlayer = new YT.Player('yt-player-container', {
         height: '0', width: '0',
-        playerVars: { 'autoplay': 0, 'controls': 0, 'loop': 1 },
-        events: { 'onReady': () => { forcarVolumeJogador(); } }
+        playerVars: { 'autoplay': 0, 'controls': 0, 'playsinline': 1 },
+        events: { 
+            'onReady': () => { forcarVolumeJogador(); },
+            'onStateChange': (event) => {
+                if (event.data === 0 && window.vttLoopAtivo) {
+                    ytPlayer.seekTo(0);
+                    ytPlayer.playVideo();
+                }
+            }
+        }
     });
 };
 
@@ -211,7 +221,7 @@ window.closeAlertModal = function() {
 function proceedToSheet(data) {
     currentAgentId = data.id;
     currentTabIndex = 0; 
-    ultimaFichaString = "";
+    ultimaFichaString = ""; 
     document.getElementById('selection-screen').classList.add('hidden');
     document.getElementById('sheet-screen').classList.remove('hidden');
     renderSheet(data);
@@ -429,7 +439,7 @@ function renderSheet(data) {
     const jNotas = document.getElementById('jogador-notas-input');
     if (jRelatos && document.activeElement !== jRelatos) jRelatos.value = data.relatos || '';
     if (jNotas && document.activeElement !== jNotas) jNotas.value = data.notasMarginais || '';
-
+    
     updateTabsUI();
 
     setTimeout(() => {
@@ -442,10 +452,8 @@ function renderSheet(data) {
 
 function sincronizarAudioJogador(track) {
     let isLoop = track.loop !== false;
+    window.vttLoopAtivo = isLoop;
     playerAudioNode.loop = isLoop;
-    if (isYouTube && ytPlayer && typeof ytPlayer.setLoop === 'function') {
-        ytPlayer.setLoop(isLoop);
-    }
 
     if (!track || !track.url) {
         playerAudioNode.pause();
