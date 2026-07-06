@@ -212,6 +212,14 @@ function proceedToSheet(data) {
 }
 
 function renderSheet(data) {
+    // --- 1. MEMÓRIA DO SCROLL ---
+    let scrollCentro = 0;
+    let scrollPericias = 0;
+    const divCentro = document.querySelector('.center-square-carousel');
+    const divPericias = document.querySelector('.pericias-box .pericias-scroll');
+    if (divCentro) scrollCentro = divCentro.scrollTop;
+    if (divPericias) scrollPericias = divPericias.scrollTop;
+
     const pvPercent = data.maxPv > 0 ? (data.pv / data.maxPv) * 100 : 0;
     const pdPercent = data.maxPd > 0 ? (data.pd / data.maxPd) * 100 : 0;
     const content = document.getElementById('sheet-content');
@@ -412,6 +420,12 @@ function renderSheet(data) {
     `;
     
     updateTabsUI();
+
+    // --- 2. RESTAURAR SCROLL ---
+    const novoDivCentro = document.querySelector('.center-square-carousel');
+    const novoDivPericias = document.querySelector('.pericias-box .pericias-scroll');
+    if (novoDivCentro) novoDivCentro.scrollTop = scrollCentro;
+    if (novoDivPericias) novoDivPericias.scrollTop = scrollPericias;
 }
 
 function sincronizarAudioJogador(track) {
