@@ -550,7 +550,9 @@ input, button, textarea, select {
     object-fit: contain !important; 
     object-position: bottom center !important;
     filter: drop-shadow(-5px 10px 15px rgba(0, 0, 0, 0.4));
-    transform: scale(1.35);
+    
+    /* AUMENTE ESTE VALOR (ex: 1.55 ou 1.6) */
+    transform: scale(1.6) !important; 
     transform-origin: bottom center;
 }
 
