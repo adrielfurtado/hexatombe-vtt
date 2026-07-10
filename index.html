@@ -22,7 +22,7 @@
             <div class="notes-window">
                 <button class="close-notes-btn" onclick="closeNotes()">X</button>
                 <h2 class="notes-title">GLOSAS</h2>
-                
+        
                 <div class="notes-flex">
                     <div class="notes-section">
                         <h3>RELATOS</h3>
@@ -39,11 +39,22 @@
 
     <div id="password-modal" class="custom-modal-overlay" onclick="if(event.target === this) closePasswordModal()">
         <div class="custom-modal-box" style="text-align: center; max-width: 500px; background: rgba(15,15,15,0.95); border: 2px solid var(--blood-red); box-shadow: 0 0 25px rgba(0,0,0,0.9); padding: 40px 30px; border-radius: 8px;">
-            
             <p id="enigma-message-text" style="color: #ff3333; font-family: 'Medieval', serif; font-size: 1.2rem; margin-bottom: 30px; line-height: 1.4; text-shadow: 0 0 15px #ff0000;"></p>
-            
             <input type="password" id="password-input" class="custom-modal-input" style="text-align: center; font-size: 1.2rem; letter-spacing: 2px; padding: 12px; background: #000; border: 1px solid #444; color: #fff; width: 80%; outline: none; transition: 0.3s; font-family: sans-serif;" onfocus="this.style.borderColor='#ff0000'" onblur="this.style.borderColor='#444'">
+        </div>
+    </div>
+
+    <div id="modal-despertar-jogador" class="custom-modal-overlay">
+        <div class="custom-modal-box" style="text-align: center; max-width: 500px; border-color: #7e57c2; box-shadow: 0 0 30px rgba(126, 87, 194, 0.5);">
+            <h2 class="custom-modal-title" style="color: #b39ddb; margin-bottom: 20px; text-shadow: 0 0 10px #7e57c2;">O DESPERTAR</h2>
+            <p id="despertar-enigma-text" style="color: #e0e0e0; font-family: 'Medieval', serif; font-size: 1.2rem; margin-bottom: 30px;"></p>
             
+            <input type="text" id="despertar-senha-input" class="custom-modal-input" placeholder="Qual a sua lembrança?" style="text-align: center; font-size: 1.2rem; margin-bottom: 20px;">
+            
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button class="custom-modal-btn" style="background: #333;" onclick="fecharModalDespertarJogador()">CANCELAR</button>
+                <button class="custom-modal-btn" style="background: #311b92; color: #fff; border: 1px solid #7e57c2;" onclick="tentarDespertar()">RELEMBRAR</button>
+            </div>
         </div>
     </div>
 
@@ -57,7 +68,6 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-
     <script src="assets/script/script.js?v=2"></script>
 </body>
 </html>

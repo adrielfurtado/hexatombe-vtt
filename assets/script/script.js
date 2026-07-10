@@ -16,7 +16,7 @@ let localAgents = [];
 let currentAgentIndex = 0;
 let currentAgentId = null;
 let pendingAgentData = null;
-let ultimaFichaString = "";
+let ultimaFichaString = ""; 
 
 let currentTabIndex = 0;
 const tabsOrder = ['habilidades', 'rituais', 'inventario'];
@@ -145,26 +145,41 @@ firebase.auth().onAuthStateChanged((user) => {
     });
 });
 
+function getVisibleAgents() {
+    return localAgents.filter(a => !a.esconderDoCarrossel);
+}
+
 function updateCarousel() {
-    if (localAgents.length === 0) return;
-
-    if (currentAgentIndex >= localAgents.length) currentAgentIndex = 0;
-    if (currentAgentIndex < 0) currentAgentIndex = localAgents.length - 1;
-
-    const agent = localAgents[currentAgentIndex];
+    const visibleAgents = getVisibleAgents();
     const carouselBox = document.getElementById('carousel-box');
+
+    if (visibleAgents.length === 0) {
+        carouselBox.innerHTML = '<h1 style="color: #ffc107; text-align: center;">NENHUM AGENTE DISPONÍVEL.</h1>';
+        return;
+    }
+
+    if (currentAgentIndex >= visibleAgents.length) currentAgentIndex = 0;
+    if (currentAgentIndex < 0) currentAgentIndex = visibleAgents.length - 1;
+
+    const agent = visibleAgents[currentAgentIndex];
+
+    const isVideoSilhueta = agent.fotoSilhueta && (agent.fotoSilhueta.includes('.mp4') || agent.fotoSilhueta.includes('.webm'));
+    const silhuetaHTML = isVideoSilhueta
+        ? `<video id="agent-silhouette" src="${agent.fotoSilhueta}" autoplay loop muted playsinline></video>`
+        : `<img id="agent-silhouette" src="${agent.fotoSilhueta || 'assets/img/Zerai.jpg'}" alt="Agente">`;
 
     carouselBox.innerHTML = `
         <button class="arrow" onclick="changeAgent(-1)">&#10094;</button>
         <div class="agent-display" onclick="openSheet('${agent.id}')">
-            <img id="agent-silhouette" src="${agent.fotoSilhueta || 'assets/img/Zerai.jpg'}" alt="Agente">
+            ${silhuetaHTML}
         </div>
         <button class="arrow" onclick="changeAgent(1)">&#10095;</button>
     `;
 }
 
 window.changeAgent = function(direction) {
-    if (localAgents.length === 0) return;
+    const visibleAgents = getVisibleAgents();
+    if (visibleAgents.length === 0) return;
     currentAgentIndex += direction;
     updateCarousel();
 };
@@ -246,6 +261,11 @@ function renderSheet(data) {
     const classPortrait = isLiberada ? '' : 'portrait-oculto';
     const nomeExibido = isLiberada ? data.nome : '???';
 
+    const isVideoPortrait = data.fotoPortrait && (data.fotoPortrait.includes('.mp4') || data.fotoPortrait.includes('.webm'));
+    const portraitHTML = isVideoPortrait 
+        ? `<video src="${data.fotoPortrait}" class="character-full-portrait ${classPortrait}" autoplay loop muted playsinline ondblclick="abrirModalDespertarJogador()"></video>`
+        : `<img src="${data.fotoPortrait || 'assets/img/alan3x4.png'}" class="character-full-portrait ${classPortrait}" alt="${data.nome}" ondblclick="abrirModalDespertarJogador()">`;
+
     let pesoAtual = 0;
     if (data.inventario) {
         Object.values(data.inventario).forEach(item => {
@@ -306,6 +326,7 @@ function renderSheet(data) {
                 transition: filter 0.5s ease;
                 pointer-events: none;
             }
+            .character-full-portrait { cursor: pointer; }
         </style>
 
         <div class="new-sheet-layout">
@@ -366,12 +387,15 @@ function renderSheet(data) {
                     <div class="center-square-carousel pericias-scroll ${classObfuscated}" style="width: 100%; height: 750px; overflow-y: auto; overflow-x: hidden; padding-bottom: 20px; padding-right: 5px;">
                         <div id="tab-habilidades" class="tab-content" style="display:none; position:relative;">
                             <div class="skills-stack">${htmlHabilidades}</div>
+                            ${isLiberada ? `<div style="text-align: center; margin-top: 15px;"><img src="assets/img/mais.png" onclick="adicionarNovoCardPlayer('habilidades')" style="cursor:pointer; width:30px; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); transition: 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'"></div>` : ''}
                         </div>
                         <div id="tab-rituais" class="tab-content" style="display:none; position:relative;">
                             <div class="skills-stack">${htmlRituais}</div>
+                            ${isLiberada ? `<div style="text-align: center; margin-top: 15px;"><img src="assets/img/mais.png" onclick="adicionarNovoCardPlayer('rituais')" style="cursor:pointer; width:30px; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); transition: 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'"></div>` : ''}
                         </div>
                         <div id="tab-inventario" class="tab-content" style="display:none; position:relative;">
                             <div class="skills-stack">${htmlInventario}</div>
+                            ${isLiberada ? `<div style="text-align: center; margin-top: 15px;"><img src="assets/img/mais.png" onclick="adicionarNovoCardPlayer('inventario')" style="cursor:pointer; width:30px; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); transition: 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'"></div>` : ''}
                         </div>
                     </div>
                 </div>
@@ -391,8 +415,8 @@ function renderSheet(data) {
             </div>
 
             <div class="column-right">
-                <div class="portrait-container">
-                    <img src="${data.fotoPortrait || 'assets/img/alan3x4.png'}" class="character-full-portrait ${classPortrait}" alt="${data.nome}">
+                <div class="portrait-container" title="Dois cliques para relembrar o passado...">
+                    ${portraitHTML}
                 </div>
                 
                 <div class="status-bars-container ${classObfuscated}">
@@ -402,7 +426,6 @@ function renderSheet(data) {
                             <div class="resource-fill pv-fill" style="width: ${pvPercent}%;"></div>
                             <div class="resource-content">
                                 <div class="controls-left"><span onclick="changeStatus('pv', -10)">&laquo;</span><span onclick="changeStatus('pv', -1)">&lsaquo;</span></div>
-                                <!-- Para a Vida (PV) -->
                                 <div class="resource-text">
                                     ${isLiberada ? `<span contenteditable="true" onblur="salvarCampo('pv', parseInt(this.innerText) || 0)">${data.pv}</span> / <span contenteditable="true" onblur="salvarCampo('maxPv', parseInt(this.innerText) || 0)">${data.maxPv}</span>` : '?? / ??'}
                                 </div>
@@ -417,7 +440,6 @@ function renderSheet(data) {
                             <div class="resource-fill pd-fill" style="width: ${pdPercent}%;"></div>
                             <div class="resource-content">
                                 <div class="controls-left"><span onclick="changeStatus('pd', -10)">&laquo;</span><span onclick="changeStatus('pd', -1)">&lsaquo;</span></div>
-                                <!-- Para a Determinação (PD) -->
                                 <div class="resource-text">
                                     ${isLiberada ? `<span contenteditable="true" onblur="salvarCampo('pd', parseInt(this.innerText) || 0)">${data.pd}</span> / <span contenteditable="true" onblur="salvarCampo('maxPd', parseInt(this.innerText) || 0)">${data.maxPd}</span>` : '?? / ??'}
                                 </div>
@@ -449,6 +471,42 @@ function renderSheet(data) {
         if (novoDivPericias) novoDivPericias.scrollTop = scrollPericias;
     }, 10);
 }
+
+window.abrirModalDespertarJogador = function() {
+    if (!currentAgentId) return;
+    const data = localAgents.find(a => a.id === currentAgentId);
+    if (!data || !data.despertarSenha || !data.despertarTargetId) return; 
+
+    document.getElementById('despertar-enigma-text').innerText = data.despertarEnigma || "O verdadeiro poder aguarda...";
+    document.getElementById('despertar-senha-input').value = "";
+    document.getElementById('modal-despertar-jogador').classList.add('active');
+    document.getElementById('despertar-senha-input').focus();
+};
+
+window.fecharModalDespertarJogador = function() {
+    document.getElementById('modal-despertar-jogador').classList.remove('active');
+};
+
+window.tentarDespertar = function() {
+    const data = localAgents.find(a => a.id === currentAgentId);
+    const senhaDigitada = document.getElementById('despertar-senha-input').value;
+    
+    if (senhaDigitada.toLowerCase().trim() === data.despertarSenha.toLowerCase().trim()) {
+        fecharModalDespertarJogador();
+        db.ref(`mestres/${globalMestreUID}/agentes/${currentAgentId}/esconderDoCarrossel`).set(true);
+        db.ref(`mestres/${globalMestreUID}/agentes/${data.despertarTargetId}/esconderDoCarrossel`).set(false);
+        
+        setTimeout(() => {
+            const targetData = localAgents.find(a => a.id === data.despertarTargetId);
+            if(targetData) proceedToSheet(targetData);
+        }, 500);
+        
+    } else {
+        document.getElementById('alert-modal').querySelector('.custom-modal-title').innerText = "FALHA NO DESPERTAR";
+        document.getElementById('alert-message').innerHTML = "A lembrança está distorcida... Tente novamente.";
+        document.getElementById('alert-modal').classList.add('active');
+    }
+};
 
 function sincronizarAudioJogador(track) {
     let isLoop = track.loop !== false;
@@ -614,6 +672,16 @@ function tornarArrastavel(elmnt) {
 
 window.fecharJanelaDados = function() {
     document.getElementById('floating-dice-widget').style.display = 'none';
+};
+
+window.adicionarNovoCardPlayer = function(categoria) {
+    if (!currentAgentId || !globalMestreUID) return;
+    const novoItem = {
+        nome: "NOVO ITEM",
+        custo: categoria === 'inventario' ? "PESO: 0" : "0 PD",
+        desc: "CLIQUE AQUI PARA EDITAR..."
+    };
+    db.ref(`mestres/${globalMestreUID}/agentes/${currentAgentId}/${categoria}`).push().set(novoItem);
 };
 
 window.rolarDado = function(aba = 'teste') {

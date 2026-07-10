@@ -23,7 +23,6 @@ auth.onAuthStateChanged((user) => {
     const sheetScreen = document.getElementById('sheet-screen');
     const mainWrap = document.getElementById('main-wrap');
 
-    // A MUDANÇA ESTÁ AQUI: Só entra se for um utilizador válido E NÃO for anónimo
     if (user && !user.isAnonymous) {
         mestreUID = user.uid;
         document.getElementById('mestre-nome').innerText = user.displayName || 'Mestre';
@@ -85,6 +84,9 @@ function escutarAgentesDoMestre() {
                             <span style="color:${agente.fichaLiberada ? '#00ff00' : '#ff3333'}; font-weight:bold; margin-left:10px;">
                                 [${agente.fichaLiberada ? 'REVELADA' : 'OCULTA'}]
                             </span>
+                            <span style="color:#b39ddb; font-weight:bold; margin-left:10px; display:${agente.esconderDoCarrossel ? 'inline' : 'none'};">
+                                [DESPERTADA/ESCONDIDA]
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -130,6 +132,11 @@ window.abrirFichaDoMestre = function(idAgente) {
         const pvPercent = (data.pv / data.maxPv) * 100;
         const pdPercent = (data.pd / data.maxPd) * 100;
         const content = document.getElementById('sheet-content');
+        
+        const isVideoPortrait = data.fotoPortrait && (data.fotoPortrait.includes('.mp4') || data.fotoPortrait.includes('.webm'));
+        const portraitHTML = isVideoPortrait 
+            ? `<video src="${data.fotoPortrait}" class="character-full-portrait" autoplay loop muted playsinline></video>`
+            : `<img src="${data.fotoPortrait || 'assets/img/alan3x4.png'}" class="character-full-portrait" alt="${data.nome}">`;
 
         const gerarCards = (categoria, bgColor) => {
             if (!data[categoria]) return '';
@@ -179,7 +186,6 @@ window.abrirFichaDoMestre = function(idAgente) {
 
             <div class="new-sheet-layout master-layout">
                 <div class="column-left">
-                    <!-- MARGEM AJUSTADA PARA DESCER AS PERÍCIAS (margin-top: 60px) -->
                     <div class="pericias-box" style="display: flex; flex-direction: column; flex-grow: 1; max-height: 48vh; margin-top: 60px;">
                         <h3 class="box-title" style="position: relative;">
                             PERICIAS
@@ -263,7 +269,6 @@ window.abrirFichaDoMestre = function(idAgente) {
                         </div>
                     </div>
                     
-                    <!-- ÍCONE DE ANOTAÇÕES MESTRE AQUI NO RODAPÉ CENTRAL -->
                     <div class="icons-wrapper" style="align-self: flex-end; margin-top: 10px; display: flex; gap: 20px; cursor: pointer; padding-right: 5px;">
                         <img src="assets/img/escrita.png" alt="Anotações" class="notes-icon" onclick="abrirNotasMestre()" title="Visualizar Anotações">
                     </div>
@@ -273,10 +278,10 @@ window.abrirFichaDoMestre = function(idAgente) {
                 <div class="column-right">
                     <div class="portrait-container">
                         <div style="position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 5px; z-index: 10; pointer-events: auto;">
-                            <button onclick="alterarImagem('fotoSilhueta')" style="background: rgba(0,0,0,0.8); color: #ccc; border: 1px solid #555; padding: 5px 10px; cursor: pointer; font-family: inherit; font-size: 0.8rem; transition: 0.3s;">SILHUETA</button>
-                            <button onclick="alterarImagem('fotoPortrait')" style="background: rgba(0,0,0,0.8); color: #ffc107; border: 1px solid #ffc107; padding: 5px 10px; cursor: pointer; font-family: inherit; font-size: 0.8rem; transition: 0.3s;">PORTRAIT</button>
+                            <button onclick="abrirMediaModal('fotoSilhueta')" style="background: rgba(0,0,0,0.8); color: #ccc; border: 1px solid #555; padding: 5px 10px; cursor: pointer; font-family: inherit; font-size: 0.8rem; transition: 0.3s;">SILHUETA</button>
+                            <button onclick="abrirMediaModal('fotoPortrait')" style="background: rgba(0,0,0,0.8); color: #ffc107; border: 1px solid #ffc107; padding: 5px 10px; cursor: pointer; font-family: inherit; font-size: 0.8rem; transition: 0.3s;">PORTRAIT</button>
                         </div>
-                        <img src="${data.fotoPortrait || 'assets/img/alan3x4.png'}" class="character-full-portrait" alt="${data.nome}">
+                        ${portraitHTML}
                     </div>
                     
                     <div class="status-bars-container">
@@ -286,7 +291,6 @@ window.abrirFichaDoMestre = function(idAgente) {
                                 <div class="resource-fill pv-fill" style="width: ${pvPercent}%;"></div>
                                 <div class="resource-content">
                                     <div class="controls-left"><span onclick="alterarStatus('pv', -10)">&laquo;</span><span onclick="alterarStatus('pv', -1)">&lsaquo;</span></div>
-                                    <!-- Para a Vida (PV) -->
                                     <div class="resource-text">
                                         <span contenteditable="true" onblur="salvarCampo('pv', parseInt(this.innerText) || 0)">${data.pv}</span> / 
                                         <span contenteditable="true" onblur="salvarCampo('maxPv', parseInt(this.innerText) || 0)">${data.maxPv}</span>
@@ -302,7 +306,6 @@ window.abrirFichaDoMestre = function(idAgente) {
                                 <div class="resource-fill pd-fill" style="width: ${pdPercent}%;"></div>
                                 <div class="resource-content">
                                     <div class="controls-left"><span onclick="alterarStatus('pd', -10)">&laquo;</span><span onclick="alterarStatus('pd', -1)">&lsaquo;</span></div>
-                                    <!-- Para a Determinação (PD) -->
                                     <div class="resource-text">
                                         <span contenteditable="true" onblur="salvarCampo('pd', parseInt(this.innerText) || 0)">${data.pd}</span> / 
                                         <span contenteditable="true" onblur="salvarCampo('maxPd', parseInt(this.innerText) || 0)">${data.maxPd}</span>
@@ -340,7 +343,6 @@ window.abrirModalEnigma = function() {
     if (!idAgenteAtivo) return;
     document.getElementById('enigma-modal').classList.add('active');
 };
-
 window.fecharModalEnigma = function() {
     document.getElementById('enigma-modal').classList.remove('active');
 };
@@ -353,35 +355,26 @@ window.closeNotes = function() {
     document.getElementById('notes-modal').classList.add('modal-hidden');
 };
 
-window.salvarCampoModal = function(campo, valor) {
+let tipoMediaAtiva = null;
+
+window.abrirMediaModal = function(tipo) {
     if (!idAgenteAtivo) return;
-    db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/${campo}`).set(valor);
+    tipoMediaAtiva = tipo;
+    document.getElementById('media-buttons-view').style.display = 'block';
+    document.getElementById('media-link-view').style.display = 'none';
+    document.getElementById('media-link-input').value = '';
+    document.getElementById('media-modal').classList.add('active');
 };
 
-window.toggleFichaLiberada = function() {
-    if (!idAgenteAtivo) return;
-    const btn = document.getElementById('btn-toggle-top');
-    const estadoAtual = btn.dataset.liberada === 'true';
-    db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/fichaLiberada`).set(!estadoAtual);
+window.fecharMediaModal = function() {
+    document.getElementById('media-modal').classList.remove('active');
+    tipoMediaAtiva = null;
 };
 
-window.salvarCampo = function(caminho, valor) {
-    if (!idAgenteAtivo) return;
-    db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/${caminho}`).set(valor);
-};
-
-window.mudarCustoMestre = function(categoria, key, valor) {
-    if (!idAgenteAtivo) return;
-    const numero = parseInt(valor) || 0;
-    const formato = categoria === 'inventario' ? `PESO: ${numero}` : `${numero} PD`;
-    db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/${categoria}/${key}/custo`).set(formato);
-};
-
-window.alterarImagem = function(tipo) {
-    if (!idAgenteAtivo) return;
+window.uploadMediaPC = function() {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
-    fileInput.accept = 'image/png, image/jpeg, image/jpg';
+    fileInput.accept = 'image/png, image/jpeg, image/jpg, image/gif';
 
     fileInput.onchange = e => {
         const file = e.target.files[0];
@@ -410,21 +403,105 @@ window.alterarImagem = function(tipo) {
                 ctx.drawImage(img, 0, 0, width, height);
                 
                 const base64String = canvas.toDataURL('image/png');
-                db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/${tipo}`).set(base64String);
+                db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/${tipoMediaAtiva}`).set(base64String);
+                fecharMediaModal();
             };
             img.src = event.target.result;
         };
         reader.readAsDataURL(file);
     };
-
     fileInput.click(); 
 };
 
+window.showMediaLinkInput = function() {
+    document.getElementById('media-buttons-view').style.display = 'none';
+    document.getElementById('media-link-view').style.display = 'block';
+};
+
+window.salvarMediaLink = function() {
+    const urlAnimada = document.getElementById('media-link-input').value;
+    if (urlAnimada && urlAnimada.trim() !== "") {
+        db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/${tipoMediaAtiva}`).set(urlAnimada.trim());
+        fecharMediaModal();
+    } else {
+        alert("Insira um link válido.");
+    }
+};
+
+window.abrirConfigDespertar = function() {
+    if (!idAgenteAtivo) return;
+    
+    db.ref(`mestres/${mestreUID}/agentes`).once('value', snapshot => {
+        const data = snapshot.val();
+        if(!data) return;
+        
+        const select = document.getElementById('mestre-despertar-target');
+        select.innerHTML = '<option value="">-- Selecione a Ficha Despertada --</option>';
+        
+        Object.keys(data).forEach(key => {
+            if (key !== idAgenteAtivo) {
+                select.innerHTML += `<option value="${key}">${data[key].nome} ${data[key].esconderDoCarrossel ? '(Oculta)' : ''}</option>`;
+            }
+        });
+
+        const currentData = data[idAgenteAtivo];
+        document.getElementById('mestre-despertar-enigma').value = currentData.despertarEnigma || '';
+        document.getElementById('mestre-despertar-senha').value = currentData.despertarSenha || '';
+        document.getElementById('mestre-despertar-target').value = currentData.despertarTargetId || '';
+        
+        document.getElementById('modal-despertar-mestre').classList.add('active');
+    });
+};
+
+window.fecharConfigDespertar = function() {
+    document.getElementById('modal-despertar-mestre').classList.remove('active');
+};
+
+window.salvarConfigDespertar = function() {
+    const enigma = document.getElementById('mestre-despertar-enigma').value;
+    const senha = document.getElementById('mestre-despertar-senha').value;
+    const targetId = document.getElementById('mestre-despertar-target').value;
+    
+    if (!targetId || !senha) {
+        alert("Você precisa selecionar uma ficha alvo e definir uma senha!");
+        return;
+    }
+
+    db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}`).update({
+        despertarEnigma: enigma,
+        despertarSenha: senha,
+        despertarTargetId: targetId
+    });
+
+    db.ref(`mestres/${mestreUID}/agentes/${targetId}/esconderDoCarrossel`).set(true);
+    alert("Mecânica de Despertar ativada! A ficha verdadeira foi escondida dos jogadores até que a senha seja descoberta.");
+    fecharConfigDespertar();
+};
+
+window.salvarCampoModal = function(campo, valor) {
+    if (!idAgenteAtivo) return;
+    db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/${campo}`).set(valor);
+};
+window.toggleFichaLiberada = function() {
+    if (!idAgenteAtivo) return;
+    const btn = document.getElementById('btn-toggle-top');
+    const estadoAtual = btn.dataset.liberada === 'true';
+    db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/fichaLiberada`).set(!estadoAtual);
+};
+window.salvarCampo = function(caminho, valor) {
+    if (!idAgenteAtivo) return;
+    db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/${caminho}`).set(valor);
+};
+window.mudarCustoMestre = function(categoria, key, valor) {
+    if (!idAgenteAtivo) return;
+    const numero = parseInt(valor) || 0;
+    const formato = categoria === 'inventario' ? `PESO: ${numero}` : `${numero} PD`;
+    db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/${categoria}/${key}/custo`).set(formato);
+};
 window.salvarPericia = function(key, subcampo, valor) {
     if (!idAgenteAtivo) return;
     db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/pericias/${key}/${subcampo}`).set(valor);
 };
-
 window.adicionarPericia = function() {
     if (!idAgenteAtivo) return;
     db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/pericias`).push().set({
@@ -433,12 +510,10 @@ window.adicionarPericia = function() {
         bon: "+0"
     });
 };
-
 window.removerPericia = function(key) {
     if (!idAgenteAtivo) return;
     db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/pericias/${key}`).remove();
 };
-
 window.alterarStatus = function(tipo, quantidade) {
     if (!idAgenteAtivo) return;
     const nodeRef = db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}`);
@@ -452,7 +527,6 @@ window.alterarStatus = function(tipo, quantidade) {
         nodeRef.child(tipo).set(atual);
     });
 };
-
 window.mudarAbaMestre = function(aba) {
     abaAtivaMestre = aba;
     const abas = ['habilidades', 'rituais', 'inventario'];
@@ -476,7 +550,6 @@ window.mudarAbaMestre = function(aba) {
         }
     });
 };
-
 window.adicionarNovoCard = function(categoria) {
     if (!idAgenteAtivo) return;
     const novoItem = {
@@ -486,17 +559,14 @@ window.adicionarNovoCard = function(categoria) {
     };
     db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/${categoria}`).push().set(novoItem);
 };
-
 window.salvarItemCard = function(categoria, key, campo, valor) {
     if (!idAgenteAtivo) return;
     db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/${categoria}/${key}/${campo}`).set(valor);
 };
-
 window.removerItemCard = function(categoria, key) {
     if (!idAgenteAtivo) return;
     db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}/${categoria}/${key}`).remove();
 };
-
 window.gerarFichaEmBranco = function() {
     if (!mestreUID) return;
     const statusMsg = document.getElementById('status-msg');
@@ -518,9 +588,7 @@ window.gerarFichaEmBranco = function() {
         pesoMaximo: 10,
         atributos: { FOR: 1, AGI: 1, INT: 1, VIG: 1, PRE: 1 },
         pericias: [
-            { nome: "Luta (FOR)", trn: "+0", bon: "+0" },
-            { nome: "Investigacao (INT)", trn: "+0", bon: "+0" },
-            { nome: "Percepao (PRE)", trn: "+0", bon: "+0" }
+            { nome: "Luta (FOR)", trn: "+0", bon: "+0" }
         ]
     };
 
@@ -531,7 +599,6 @@ window.gerarFichaEmBranco = function() {
             setTimeout(() => { statusMsg.innerText = ""; }, 2000);
         });
 };
-
 window.deletarAgente = function(idAgente) {
     if (confirm("Deseja deletar permanentemente este agente da nuvem?")) {
         db.ref(`mestres/${mestreUID}/agentes/${idAgente}`).remove();
