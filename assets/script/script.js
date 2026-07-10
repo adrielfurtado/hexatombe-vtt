@@ -164,15 +164,24 @@ function updateCarousel() {
     const agent = visibleAgents[currentAgentIndex];
 
     const isVideoSilhueta = agent.fotoSilhueta && (agent.fotoSilhueta.includes('.mp4') || agent.fotoSilhueta.includes('.webm'));
-    
+
     const isDespertada = agent.isDespertada === true;
-    const filtroVermelho = isDespertada ? 'filter: hue-rotate(-60deg) saturate(200%) drop-shadow(0 0 15px #ff0000) !important;' : '';
+    const classeDespertada = isDespertada ? 'silhueta-despertada' : '';
 
     const silhuetaHTML = isVideoSilhueta
-        ? `<video id="agent-silhouette" src="${agent.fotoSilhueta}" autoplay loop muted playsinline style="${filtroVermelho}"></video>`
-        : `<img id="agent-silhouette" src="${agent.fotoSilhueta || 'assets/img/Zerai.jpg'}" alt="Agente" style="${filtroVermelho}">`;
+        ? `<video id="agent-silhouette" class="${classeDespertada}" src="${agent.fotoSilhueta}" autoplay loop muted playsinline></video>`
+        : `<img id="agent-silhouette" class="${classeDespertada}" src="${agent.fotoSilhueta || 'assets/img/Zerai.jpg'}" alt="Agente">`;
 
     carouselBox.innerHTML = `
+        <style>
+            #agent-silhouette.silhueta-despertada {
+                transition: filter 0.3s ease;
+            }
+            .agent-display:hover #agent-silhouette.silhueta-despertada,
+            #agent-silhouette.silhueta-despertada:hover {
+                filter: drop-shadow(0 0 25px #ff0000) !important;
+            }
+        </style>
         <button class="arrow" onclick="changeAgent(-1)">&#10094;</button>
         <div class="agent-display" onclick="openSheet('${agent.id}')">
             ${silhuetaHTML}
