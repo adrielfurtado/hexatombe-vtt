@@ -164,9 +164,13 @@ function updateCarousel() {
     const agent = visibleAgents[currentAgentIndex];
 
     const isVideoSilhueta = agent.fotoSilhueta && (agent.fotoSilhueta.includes('.mp4') || agent.fotoSilhueta.includes('.webm'));
+    
+    const isDespertada = agent.isDespertada === true;
+    const filtroVermelho = isDespertada ? 'filter: hue-rotate(-60deg) saturate(200%) drop-shadow(0 0 15px #ff0000) !important;' : '';
+
     const silhuetaHTML = isVideoSilhueta
-        ? `<video id="agent-silhouette" src="${agent.fotoSilhueta}" autoplay loop muted playsinline></video>`
-        : `<img id="agent-silhouette" src="${agent.fotoSilhueta || 'assets/img/Zerai.jpg'}" alt="Agente">`;
+        ? `<video id="agent-silhouette" src="${agent.fotoSilhueta}" autoplay loop muted playsinline style="${filtroVermelho}"></video>`
+        : `<img id="agent-silhouette" src="${agent.fotoSilhueta || 'assets/img/Zerai.jpg'}" alt="Agente" style="${filtroVermelho}">`;
 
     carouselBox.innerHTML = `
         <button class="arrow" onclick="changeAgent(-1)">&#10094;</button>

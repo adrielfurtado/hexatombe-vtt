@@ -473,9 +473,41 @@ window.salvarConfigDespertar = function() {
         despertarTargetId: targetId
     });
 
-    db.ref(`mestres/${mestreUID}/agentes/${targetId}/esconderDoCarrossel`).set(true);
+    db.ref(`mestres/${mestreUID}/agentes/${targetId}`).update({
+        esconderDoCarrossel: true,
+        isDespertada: true 
+    });
+    
     alert("Mecânica de Despertar ativada! A ficha verdadeira foi escondida dos jogadores até que a senha seja descoberta.");
     fecharConfigDespertar();
+};
+
+window.reverterDespertar = function() {
+    if (!idAgenteAtivo) return;
+    
+    if (confirm("Tem certeza que deseja remover as tags de Despertar e revelar esta ficha (e seu alvo) novamente no carrossel?")) {
+        db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}`).once('value', snap => {
+            const data = snap.val();
+
+            if (data.despertarTargetId) {
+                db.ref(`mestres/${mestreUID}/agentes/${data.despertarTargetId}`).update({
+                    esconderDoCarrossel: false,
+                    isDespertada: null
+                });
+            }
+
+            db.ref(`mestres/${mestreUID}/agentes/${idAgenteAtivo}`).update({
+                despertarEnigma: null,
+                despertarSenha: null,
+                despertarTargetId: null,
+                esconderDoCarrossel: false,
+                isDespertada: null
+            });
+            
+            alert("Feitiço quebrado! A ficha voltou ao normal e está visível no carrossel.");
+            fecharConfigDespertar();
+        });
+    }
 };
 
 window.salvarCampoModal = function(campo, valor) {
