@@ -552,9 +552,6 @@ function sincronizarAudioJogador(track) {
                     ytPlayer.pauseVideo();
                 }
             }
-            if (Math.abs((ytPlayer.getCurrentTime ? ytPlayer.getCurrentTime() : 0) - track.tempoAtual) > 4) {
-                ytPlayer.seekTo(track.tempoAtual);
-            }
         }
     } else {
         isYouTube = false;
@@ -572,9 +569,6 @@ function sincronizarAudioJogador(track) {
             } else {
                 playerAudioNode.pause();
             }
-        }
-        if (Math.abs(playerAudioNode.currentTime - track.tempoAtual) > 4) {
-            playerAudioNode.currentTime = track.tempoAtual;
         }
     }
 

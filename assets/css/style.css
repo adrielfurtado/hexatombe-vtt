@@ -550,8 +550,6 @@ input, button, textarea, select {
     object-fit: contain !important; 
     object-position: bottom center !important;
     filter: drop-shadow(-5px 10px 15px rgba(0, 0, 0, 0.4));
-    
-    /* AUMENTE ESTE VALOR (ex: 1.55 ou 1.6) */
     transform: scale(1.6) !important; 
     transform-origin: bottom center;
 }
@@ -1117,11 +1115,6 @@ input, button, textarea, select {
     color: #00ff00;
 }
 
-/* ==========================================
-   QUEBRA DE LINHA DEFINITIVA NOS CARDS
-   ========================================== */
-
-/* Tranca o card para nunca ultrapassar 100% da tela */
 .skill-card-new {
     width: 100% !important;
     max-width: 100% !important;
@@ -1130,18 +1123,16 @@ input, button, textarea, select {
     min-height: fit-content;
 }
 
-/* Força a quebra de palavras gigantes e respeita os 'Enters' */
 .skill-desc-new {
     white-space: pre-wrap !important; 
     overflow-wrap: break-word !important; 
-    word-break: break-all !important; /* Esse é o machado que corta o AAAAA */
+    word-break: break-all !important;
     display: block;
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
 }
 
-/* Protege o título do card de empurrar os botões de PE/Peso */
 .skill-header-new span[contenteditable] {
     white-space: pre-wrap !important;
     overflow-wrap: break-word !important; 
