@@ -38,6 +38,15 @@ auth.onAuthStateChanged((user) => {
         initRolagens(mestreUID);
         
         escutarAgentesDoMestre();
+
+        db.ref(`mestres/${mestreUID}/notasGerais`).on('value', (snap) => {
+            const notas = snap.val() || "";
+            const textarea = document.getElementById('gm-global-notes-input');
+            if (textarea && document.activeElement !== textarea) {
+                textarea.value = notas;
+            }
+        });
+
     } else {
         mestreUID = null;
         loginScreen.classList.remove('hidden');
@@ -74,25 +83,33 @@ function escutarAgentesDoMestre() {
             
             const cardAgente = document.createElement('div');
             cardAgente.className = 'agent-item';
+            const pvPercent = agente.maxPv > 0 ? (agente.pv / agente.maxPv) * 100 : 0;
+            const pdPercent = agente.maxPd > 0 ? (agente.pd / agente.maxPd) * 100 : 0;
+
             cardAgente.innerHTML = `
                 <div class="agent-info" style="display: flex; align-items: center; gap: 15px; width: 65%; overflow: hidden;">
                     <img src="${agente.fotoSilhueta || 'assets/img/Zerai.png'}" alt="Foto" class="agent-mini-foto" style="flex-shrink: 0;">
                     <div style="overflow: hidden; width: 100%;">
                         <div class="agent-nome" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${agente.nome || 'AGENTE DESCONHECIDO'}</div>
-                        <div class="agent-detalhes">
-                            VIDA: ${agente.pv}/${agente.maxPv} | PD: ${agente.pd}/${agente.maxPd} 
-                            <span style="color:${agente.fichaLiberada ? '#00ff00' : '#ff3333'}; font-weight:bold; margin-left:10px;">
+                        
+                        <div class="agent-detalhes" style="display: flex; gap: 10px; margin-top: 5px; align-items: center; flex-wrap: wrap;">
+                            <div style="background: rgba(0,0,0,0.8); border: 1px solid #4a0000; border-radius: 4px; padding: 2px 8px; width: 140px; position: relative; overflow: hidden;">
+                                <div style="position: absolute; top: 0; left: 0; height: 100%; width: ${pvPercent}%; background: #b02323; z-index: 1; transition: width 0.3s;"></div>
+                                <span style="position: relative; z-index: 2; color: #fff; font-weight: bold; font-size: 0.85rem; text-shadow: 1px 1px 2px #000;">PV: ${agente.pv} / ${agente.maxPv}</span>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.8); border: 1px solid #00364d; border-radius: 4px; padding: 2px 8px; width: 140px; position: relative; overflow: hidden;">
+                                <div style="position: absolute; top: 0; left: 0; height: 100%; width: ${pdPercent}%; background: #0b7a94; z-index: 1; transition: width 0.3s;"></div>
+                                <span style="position: relative; z-index: 2; color: #fff; font-weight: bold; font-size: 0.85rem; text-shadow: 1px 1px 2px #000;">PD: ${agente.pd} / ${agente.maxPd}</span>
+                            </div>
+                            <span style="color:${agente.fichaLiberada ? '#00ff00' : '#ff3333'}; font-weight:bold; font-size: 0.8rem; margin-left: 5px;">
                                 [${agente.fichaLiberada ? 'REVELADA' : 'OCULTA'}]
-                            </span>
-                            <span style="color:#b39ddb; font-weight:bold; margin-left:10px; display:${agente.esconderDoCarrossel ? 'inline' : 'none'};">
-                                [DESPERTADA/ESCONDIDA]
                             </span>
                         </div>
                     </div>
                 </div>
                 <div class="agent-actions" style="flex-shrink: 0;">
-                    <button class="btn-action edit" onclick="abrirFichaDoMestre('${idAgente}')">EDITAR</button>
-                    <button class="btn-action delete" onclick="deletarAgente('${idAgente}')">EXCLUIR</button>
+                    <button class="btn-action edit" onclick="abrirFichaDoMestre('${idAgente}')">VER FICHA</button>
+                    <button class="btn-action delete" onclick="deletarAgente('${idAgente}')">X</button>
                 </div>
             `;
             listaHtml.appendChild(cardAgente);
@@ -290,12 +307,12 @@ window.abrirFichaDoMestre = function(idAgente) {
                             <div class="resource-bar-container">
                                 <div class="resource-fill pv-fill" style="width: ${pvPercent}%;"></div>
                                 <div class="resource-content">
-                                    <div class="controls-left"><span onclick="alterarStatus('pv', -10)">&laquo;</span><span onclick="alterarStatus('pv', -1)">&lsaquo;</span></div>
+                                    <div class="controls-left"><span onclick="alterarStatus('pv', -5)">&laquo;</span><span onclick="alterarStatus('pv', -1)">&lsaquo;</span></div>
                                     <div class="resource-text">
                                         <span contenteditable="true" onblur="salvarCampo('pv', parseInt(this.innerText) || 0)">${data.pv}</span> / 
                                         <span contenteditable="true" onblur="salvarCampo('maxPv', parseInt(this.innerText) || 0)">${data.maxPv}</span>
                                     </div>
-                                    <div class="controls-right"><span onclick="alterarStatus('pv', 1)">&rsaquo;</span><span onclick="alterarStatus('pv', 10)">&raquo;</span></div>
+                                    <div class="controls-right"><span onclick="alterarStatus('pv', 1)">&rsaquo;</span><span onclick="alterarStatus('pv', 5)">&raquo;</span></div>
                                 </div>
                             </div>
                         </div>
@@ -305,12 +322,12 @@ window.abrirFichaDoMestre = function(idAgente) {
                             <div class="resource-bar-container">
                                 <div class="resource-fill pd-fill" style="width: ${pdPercent}%;"></div>
                                 <div class="resource-content">
-                                    <div class="controls-left"><span onclick="alterarStatus('pd', -10)">&laquo;</span><span onclick="alterarStatus('pd', -1)">&lsaquo;</span></div>
+                                    <div class="controls-left"><span onclick="alterarStatus('pd', -5)">&laquo;</span><span onclick="alterarStatus('pd', -1)">&lsaquo;</span></div>
                                     <div class="resource-text">
                                         <span contenteditable="true" onblur="salvarCampo('pd', parseInt(this.innerText) || 0)">${data.pd}</span> / 
                                         <span contenteditable="true" onblur="salvarCampo('maxPd', parseInt(this.innerText) || 0)">${data.maxPd}</span>
                                     </div>
-                                    <div class="controls-right"><span onclick="alterarStatus('pd', 1)">&rsaquo;</span><span onclick="alterarStatus('pd', 10)">&raquo;</span></div>
+                                    <div class="controls-right"><span onclick="alterarStatus('pd', 1)">&rsaquo;</span><span onclick="alterarStatus('pd', 5)">&raquo;</span></div>
                                 </div>
                             </div>
                         </div>
@@ -631,8 +648,243 @@ window.gerarFichaEmBranco = function() {
             setTimeout(() => { statusMsg.innerText = ""; }, 2000);
         });
 };
+
 window.deletarAgente = function(idAgente) {
     if (confirm("Deseja deletar permanentemente este agente da nuvem?")) {
         db.ref(`mestres/${mestreUID}/agentes/${idAgente}`).remove();
     }
+};
+
+window.abrirMenuDadosMestre = function(aba = 'teste') {
+    const widget = document.getElementById('floating-gm-dice-widget');
+    const content = document.getElementById('floating-gm-dice-content');
+
+    if (!document.getElementById('gm-dice-styles')) {
+        let style = document.createElement('style');
+        style.id = 'gm-dice-styles';
+        style.innerHTML = `
+            .mod-btn { background: #222; border: 1px solid #444; color: white; padding: 5px 12px; font-size: 1.2rem; border-radius: 4px; cursor: pointer; transition: 0.2s; font-weight: bold; }
+            .mod-btn:hover { background: var(--blood-red); border-color: var(--highlight-red); }
+            .mod-input::-webkit-outer-spin-button, .mod-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+            .mod-input { -moz-appearance: textfield; background: #000; border: 2px solid var(--highlight-red); color: white; font-size: 1.2rem; width: 45px; text-align: center; border-radius: 5px; outline: none; font-weight: bold; font-family: 'Medieval', serif; }
+            .btn-lancar { margin-top: 15px; background: var(--blood-red); border: 1px solid var(--highlight-red); color: white; font-family: 'Medieval', serif; font-size: 1.2rem; padding: 12px; cursor: pointer; border-radius: 4px; transition: 0.3s; width: 100%; letter-spacing: 1px; }
+            .btn-lancar:hover { box-shadow: 0 0 15px var(--highlight-red); background: #a00000; }
+            .setup-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 6px; border: 1px solid #333; }
+            .setup-label { color: #ccc; font-size: 0.9rem; font-family: sans-serif; text-align: left; font-weight: bold; }
+            .tab-btn-dice { flex: 1; padding: 10px; font-family: 'Medieval', serif; font-size: 1.1rem; border: none; cursor: pointer; transition: 0.3s; }
+            @keyframes rollDiceMini { 0% { transform: scale(0.2) rotate(0deg); opacity: 0; } 50% { transform: scale(1.1) rotate(180deg); opacity: 1; } 100% { transform: scale(0.8) rotate(360deg); opacity: 1; } }
+            @keyframes popUpMini { 0% { transform: translateY(15px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    let htmlAba = '';
+    if (aba === 'teste') {
+        htmlAba = `
+            <div class="setup-row">
+                <div class="setup-label">DADOS (D20)</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button class="mod-btn" onclick="let v=parseInt(document.getElementById('gm-qtd-dados').value||1); if(v>0) document.getElementById('gm-qtd-dados').value = v-1">-</button>
+                    <input type="number" id="gm-qtd-dados" value="1" min="0" class="mod-input">
+                    <button class="mod-btn" onclick="document.getElementById('gm-qtd-dados').value = parseInt(document.getElementById('gm-qtd-dados').value||1) + 1">+</button>
+                </div>
+            </div>
+            <div class="setup-row">
+                <div class="setup-label">BÔNUS</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button class="mod-btn" onclick="document.getElementById('gm-bonus-teste').value = parseInt(document.getElementById('gm-bonus-teste').value||0) - 1">-</button>
+                    <input type="number" id="gm-bonus-teste" value="0" class="mod-input">
+                    <button class="mod-btn" onclick="document.getElementById('gm-bonus-teste').value = parseInt(document.getElementById('gm-bonus-teste').value||0) + 1">+</button>
+                </div>
+            </div>
+            <button class="btn-lancar" onclick="iniciarAnimacaoDadoMestre('teste')">ROLAR DADOS</button>
+        `;
+    } else {
+        htmlAba = `
+            <div class="setup-row">
+                <div class="setup-label">QTD. DADOS</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button class="mod-btn" onclick="let v=parseInt(document.getElementById('gm-qtd-dano').value||1); if(v>1) document.getElementById('gm-qtd-dano').value = v-1">-</button>
+                    <input type="number" id="gm-qtd-dano" value="1" min="1" class="mod-input">
+                    <button class="mod-btn" onclick="document.getElementById('gm-qtd-dano').value = parseInt(document.getElementById('gm-qtd-dano').value||1) + 1">+</button>
+                </div>
+            </div>
+            <div class="setup-row">
+                <div class="setup-label">FACES</div>
+                <select id="gm-tipo-dano" class="mod-input" style="width: 65px; padding: 5px; cursor: pointer; text-align-last: center; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
+                    <option value="4">D4</option>
+                    <option value="6" selected>D6</option>
+                    <option value="8">D8</option>
+                    <option value="10">D10</option>
+                    <option value="12">D12</option>
+                    <option value="20">D20</option>
+                    <option value="100">D100</option>
+                </select>
+            </div>
+            <div class="setup-row">
+                <div class="setup-label">BÔNUS</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button class="mod-btn" onclick="document.getElementById('gm-bonus-dano').value = parseInt(document.getElementById('gm-bonus-dano').value||0) - 1">-</button>
+                    <input type="number" id="gm-bonus-dano" value="0" class="mod-input">
+                    <button class="mod-btn" onclick="document.getElementById('gm-bonus-dano').value = parseInt(document.getElementById('gm-bonus-dano').value||0) + 1">+</button>
+                </div>
+            </div>
+            <button class="btn-lancar" onclick="iniciarAnimacaoDadoMestre('dano')">ROLAR DANO</button>
+        `;
+    }
+
+    content.innerHTML = `
+        <div style="display: flex; margin-bottom: 15px; border-radius: 6px; overflow: hidden; border: 1px solid #444;">
+            <button class="tab-btn-dice" onclick="abrirMenuDadosMestre('teste')" style="background: ${aba === 'teste' ? '#5a0000' : '#222'}; color: ${aba === 'teste' ? '#ffc107' : '#888'};">TESTE</button>
+            <button class="tab-btn-dice" onclick="abrirMenuDadosMestre('dano')" style="background: ${aba === 'dano' ? '#5a0000' : '#222'}; color: ${aba === 'dano' ? '#ffc107' : '#888'};">ROLAR DANO</button>
+        </div>
+        <div style="text-align: center;">
+            ${htmlAba}
+        </div>
+    `;
+    widget.style.display = 'flex';
+    if(typeof tornarHistoricoArrastavel === "function") tornarHistoricoArrastavel(widget);
+};
+
+window.fecharJanelaDadosMestre = function() {
+    document.getElementById('floating-gm-dice-widget').style.display = 'none';
+};
+
+window.iniciarAnimacaoDadoMestre = function(tipo) {
+    let qtd = 1, bonus = 0, faces = 20, rolandoZero = false;
+    
+    if (tipo === 'teste') {
+        let qtdOriginal = parseInt(document.getElementById('gm-qtd-dados').value) || 0;
+        bonus = parseInt(document.getElementById('gm-bonus-teste').value) || 0;
+        if (qtdOriginal <= 0) { rolandoZero = true; qtd = 2; } else { qtd = qtdOriginal; }
+    } else {
+        qtd = parseInt(document.getElementById('gm-qtd-dano').value) || 1;
+        if(qtd <= 0) qtd = 1; 
+        faces = parseInt(document.getElementById('gm-tipo-dano').value) || 6;
+        bonus = parseInt(document.getElementById('gm-bonus-dano').value) || 0;
+    }
+
+    let diceSound = new Audio('assets/audio/dice.mp3');
+    diceSound.volume = 0.2;
+    diceSound.play().catch(e => console.log("Erro no audio: ", e));
+
+    const content = document.getElementById('floating-gm-dice-content');
+    let visualDiceCount = qtd > 8 ? 8 : qtd; 
+    let redFilter = "filter: invert(16%) sepia(80%) saturate(7000%) hue-rotate(350deg) drop-shadow(0 0 10px rgba(255,0,0,0.8));";
+
+    let diceHtml = '';
+    for(let i=0; i<visualDiceCount; i++) {
+        let delay = Math.random() * 0.2;
+        diceHtml += `<img src="assets/img/d20.png" style="width: 50px; height: 50px; animation: rollDiceMini 1.2s ease-in-out forwards; animation-delay: ${delay}s; opacity: 0; margin: 5px; ${redFilter}">`;
+    }
+    
+    content.innerHTML = `<div style="height: 200px; display: flex; justify-content: center; align-items: center; flex-wrap: wrap;">${diceHtml}</div>`;
+
+    setTimeout(() => { mostrarResultadoMestre({ tipo, qtd, bonus, faces, rolandoZero }); }, 1300); 
+};
+
+function mostrarResultadoMestre(config) {
+    let rolagens = [];
+    let total = 0;
+    let d20ResultForDB = 0; 
+
+    for (let i = 0; i < config.qtd; i++) { 
+        rolagens.push(Math.floor(Math.random() * config.faces) + 1); 
+    }
+
+    if (config.tipo === 'teste') {
+        let dadoEscolhido = config.rolandoZero ? Math.min(...rolagens) : Math.max(...rolagens);
+        total = dadoEscolhido + config.bonus;
+        d20ResultForDB = dadoEscolhido;
+    } else {
+        let soma = rolagens.reduce((a, b) => a + b, 0);
+        total = soma + config.bonus;
+        d20ResultForDB = `[${rolagens.join(',')}] (D${config.faces})`; 
+    }
+
+    db.ref(`mestres/${mestreUID}/rolagens`).push({
+        agente: "MESTRE",
+        d20: d20ResultForDB,
+        bonus: config.bonus,
+        total: total,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    });
+
+    let color = "#fff"; let shadow = "var(--highlight-red)"; let critMsg = "";
+    if (config.tipo === 'teste') {
+        if (d20ResultForDB === 20 && !config.rolandoZero) { 
+            color = "#ffc107"; shadow = "#ffc107"; 
+            critMsg = "<div style='color:#ffc107; font-weight:bold; letter-spacing:2px; font-family:\"Medieval\", serif; font-size:1rem; margin-top:5px; animation: popUpMini 0.3s forwards;'>SUCESSO EXTREMO</div>";
+        } else if (d20ResultForDB === 1) { 
+            color = "#ff3333"; shadow = "#ff0000"; 
+            critMsg = "<div style='color:#ff3333; font-weight:bold; letter-spacing:2px; font-family:\"Medieval\", serif; font-size:1rem; margin-top:5px; animation: popUpMini 0.3s forwards;'>FALHA DESASTROSA</div>";
+        }
+    } else {
+        color = "#ff5555"; 
+        critMsg = "<div style='color:#aaa; font-weight:bold; letter-spacing:2px; font-family:\"Medieval\", serif; font-size:1rem; margin-top:5px; animation: popUpMini 0.3s forwards;'>DANO CAUSADO</div>";
+    }
+
+    let htmlDadosRolados = rolagens.map(d => {
+        if (config.tipo === 'teste') {
+            let opac = (d === d20ResultForDB) ? '1' : '0.4';
+            let tam = (d === d20ResultForDB) ? '1.2rem' : '0.9rem';
+            let cor = (d === 20) ? '#ffc107' : (d === 1) ? '#ff3333' : '#aaa';
+            return `<span style="opacity:${opac}; font-size:${tam}; color:${cor}; font-weight:bold; margin:0 4px;">[${d}]</span>`;
+        } else {
+            return `<span style="opacity:1; font-size:1rem; color:#ff9999; font-weight:bold; margin:0 4px;">[${d}]</span>`;
+        }
+    }).join('');
+
+    let textDest = (config.tipo === 'teste') ? (config.rolandoZero ? "ATRIBUTO 0" : "DADOS ROLADOS") : `${config.qtd}D${config.faces} ROLADOS`;
+    let labelEsq = (config.tipo === 'teste') ? "DADO VÁLIDO" : "SOMA DADOS";
+    let valorEsq = (config.tipo === 'teste') ? d20ResultForDB : rolagens.reduce((a, b) => a + b, 0);
+
+    const content = document.getElementById('floating-gm-dice-content');
+    content.innerHTML = `
+        <div style="text-align: center;">
+            <img src="assets/img/d20.png" style="width: 50px; margin-bottom: 0px; filter: drop-shadow(0 0 5px ${shadow});">
+            ${critMsg}
+            <div style="font-size: 4.5rem; color: ${color}; font-family: 'Medieval', serif; text-shadow: 0 0 15px ${shadow}; margin: 5px 0; line-height: 1; opacity: 0; animation: popUpMini 0.4s ease-out forwards 0.1s;">${total}</div>
+            
+            <div style="background: rgba(10,10,10,0.8); border: 1px solid #333; border-radius: 8px; padding: 10px; margin-top: 10px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); opacity: 0; animation: popUpMini 0.4s ease-out forwards 0.2s;">
+                <div style="font-size: 0.7rem; color: #888; font-weight: bold; letter-spacing: 1px; margin-bottom: 5px;">${textDest}</div>
+                <div style="font-family: 'Medieval', serif; display: flex; justify-content: center; align-items: baseline; flex-wrap: wrap; margin-bottom: 5px;">
+                    ${htmlDadosRolados}
+                </div>
+                <div style="width: 100%; height: 1px; background: #444; margin: 8px 0;"></div>
+                <div style="display: flex; justify-content: space-around;">
+                    <div style="text-align: center; width: 45%;">
+                        <div style="font-size: 0.7rem; color: #888; font-weight: bold; font-family: sans-serif;">${labelEsq}</div>
+                        <div style="font-size: 1.5rem; color: ${color}; font-weight: bold; font-family: 'Medieval', serif;">${valorEsq}</div>
+                    </div>
+                    <div style="width: 1px; background: #444;"></div>
+                    <div style="text-align: center; width: 45%;">
+                        <div style="font-size: 0.7rem; color: #888; font-weight: bold; font-family: sans-serif;">BÔNUS</div>
+                        <div style="font-size: 1.5rem; color: #fff; font-weight: bold; font-family: 'Medieval', serif;">${config.bonus >= 0 ? '+'+config.bonus : config.bonus}</div>
+                    </div>
+                </div>
+            </div>
+            <button onclick="abrirMenuDadosMestre('${config.tipo}')" style="background: #222; border: 1px solid #555; color: #ccc; margin-top: 15px; padding: 8px 15px; cursor: pointer; border-radius: 4px; width: 100%; font-weight: bold;">NOVA ROLAGEM</button>
+        </div>
+    `;
+}
+
+window.abrirBlocoNotasMestre = function() {
+    const widget = document.getElementById('floating-gm-notes-widget');
+    if (widget) {
+        widget.style.display = 'flex';
+        if(typeof tornarHistoricoArrastavel === "function") {
+            tornarHistoricoArrastavel(widget);
+        }
+    }
+};
+
+window.fecharBlocoNotasMestre = function() {
+    const widget = document.getElementById('floating-gm-notes-widget');
+    if (widget) widget.style.display = 'none';
+};
+
+window.salvarNotasGeraisMestre = function(valor) {
+    if (!mestreUID) return;
+    db.ref(`mestres/${mestreUID}/notasGerais`).set(valor);
 };
